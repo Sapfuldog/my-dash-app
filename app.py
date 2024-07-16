@@ -1,34 +1,45 @@
-from dash import Dash, html
 import altair as alt
-import dash_vega_components as dvc
-import plotly.express as px
+from dash import Dash, Input, Output, callback, dcc, html
+from vega_datasets import data
 
-df = px.data.tips()
-chart = (
-    alt.Chart(df)
-    .mark_circle(size=60)
-    .encode(
-        x="tip",
-        y="total_bill",
-        color=alt.Color("day").scale(domain=["Thur", "Fri", "Sat", "Sun"]),
-        tooltip=["day", "tip", "total_bill"],
-    )
-    .interactive()
+import dash_vega_components as dvc
+
+# Passing a stylesheet is not required
+app = Dash(
+    __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 )
 
-
-app = Dash()
 app.layout = html.Div(
     [
-        html.H1("Vega-Altair Chart in a Dash App"),
-        dvc.Vega(
-            id="altair-chart",
-            opt={"renderer": "svg", "actions": False},
-            spec=chart.to_dict(),
-        ),
+        html.H1("Altair Chart"),
+        dcc.Dropdown(["All", "USA", "Europe", "Japan"], "All", id="origin-dropdown"),
+        # Optionally, you can pass options to the Vega component.
+        # See https://github.com/vega/vega-embed#options for more details.
+        dvc.Vega(id="altair-chart", opt={"renderer": "svg", "actions": False}),
     ]
 )
 
 
+@callback(Output("altair-chart", "spec"), Input("origin-dropdown", "value"))
+def display_altair_chart(origin):
+    source = data.cars()
+
+    if origin != "All":
+        source = source[source["Origin"] == origin]
+
+    chart = (
+        alt.Chart(source)
+        .mark_circle(size=60)
+        .encode(
+            x="Horsepower",
+            y="Miles_per_Gallon",
+            color=alt.Color("Origin").scale(domain=["Europe", "Japan", "USA"]),
+            tooltip=["Name", "Origin", "Horsepower", "Miles_per_Gallon"],
+        )
+        .interactive()
+    )
+    return chart.to_dict()
+
+
 if __name__ == "__main__":
-    app.run(debug=True,port=8050)
+    app.run(debug=True, port = 8050)
