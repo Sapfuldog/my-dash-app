@@ -1,7 +1,10 @@
 name: myenv
+channels:
+  - defaults
+  - conda-forge
 dependencies:
   - python=3.9
-  - pandas
   - dash
-  - plotly
+  - pandas
   - altair
+  - vega_datasets
