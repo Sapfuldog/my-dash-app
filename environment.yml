@@ -9,5 +9,3 @@ dependencies:
   - altair
   - vega_datasets
   - pip
-  - pip:
-      - dash-vega-components
