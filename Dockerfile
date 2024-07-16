@@ -10,8 +10,6 @@ RUN conda env create -f environment.yaml
 # Активируем созданное окружение
 RUN echo "conda activate $(head -1 environment.yaml | cut -d' ' -f2)" >> ~/.bashrc
 
-# Копируем остальные файлы приложения в контейнер
-COPY . .
 
 # Устанавливаем пакеты pip внутри активированного окружения
 RUN /bin/bash -c "source activate $(head -1 environment.yaml | cut -d' ' -f2) && \
@@ -24,4 +22,4 @@ WORKDIR /app
 EXPOSE 8050
 
 # Команда для запуска приложения
-CMD ["conda", "run", "-n", "myenv", "python", "app.py"]
+CMD ["conda", "run", "-n", "env", "python", "app.py"]
