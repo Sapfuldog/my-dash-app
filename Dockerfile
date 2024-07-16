@@ -4,8 +4,10 @@ FROM continuumio/miniconda3
 # Установка зависимостей
 COPY environment.yml /tmp/environment.yml
 
-# Создаем новое окружение conda с зависимостями из environment.yaml
-RUN conda env create -f environment.yml
+RUN conda env create -f /tmp/environment.yml
+
+# Активируем окружение
+SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
 
 # Активируем созданное окружение
 RUN echo "conda activate $(head -1 environment.yml | cut -d' ' -f2)" >> ~/.bashrc
