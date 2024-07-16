@@ -1,8 +1,10 @@
 name: myenv
+channels:
+  - defaults
+  - conda-forge
 dependencies:
   - python=3.8
-  - pandas
   - dash
+  - pandas
   - altair
-  - vega
   - vega_datasets
