@@ -8,4 +8,3 @@ dependencies:
   - pandas
   - altair
   - vega_datasets
-  - dash-vega-components
