@@ -5,14 +5,14 @@ FROM continuumio/miniconda3
 COPY environment.yml /tmp/environment.yml
 
 # Создаем новое окружение conda с зависимостями из environment.yaml
-RUN conda env create -f environment.yaml
+RUN conda env create -f environment.yml
 
 # Активируем созданное окружение
-RUN echo "conda activate $(head -1 environment.yaml | cut -d' ' -f2)" >> ~/.bashrc
+RUN echo "conda activate $(head -1 environment.yml | cut -d' ' -f2)" >> ~/.bashrc
 
 
 # Устанавливаем пакеты pip внутри активированного окружения
-RUN /bin/bash -c "source activate $(head -1 environment.yaml | cut -d' ' -f2) && \
+RUN /bin/bash -c "source activate $(head -1 environment.yml | cut -d' ' -f2) && \
                   pip install dash-vega-components"
 
 # Устанавливаем рабочую директорию
