@@ -1,45 +1,48 @@
-import altair as alt
 from dash import Dash, Input, Output, callback, dcc, html
-from vega_datasets import data
-
+import altair as alt
 import dash_vega_components as dvc
+import plotly.express as px
 
-# Passing a stylesheet is not required
-app = Dash(
-    __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
-)
-
+app = Dash()
 app.layout = html.Div(
     [
-        html.H1("Altair Chart"),
-        dcc.Dropdown(["All", "USA", "Europe", "Japan"], "All", id="origin-dropdown"),
-        # Optionally, you can pass options to the Vega component.
-        # See https://github.com/vega/vega-embed#options for more details.
-        dvc.Vega(id="altair-chart", opt={"renderer": "svg", "actions": False}),
+        html.H1("Vega-Altair Chart in a Dash App"),
+        dcc.Dropdown(
+            options=["All", "Thur", "Fri", "Sat", "Sun"],
+            value="All",
+            id="origin-dropdown",
+        ),
+        dvc.Vega(
+            id="altair-d-chart", opt={"renderer": "svg", "actions": False}, spec={}
+        ),
     ]
 )
 
 
-@callback(Output("altair-chart", "spec"), Input("origin-dropdown", "value"))
-def display_altair_chart(origin):
-    source = data.cars()
+@callback(
+    Output(component_id="altair-d-chart", component_property="spec"),
+    Input(component_id="origin-dropdown", component_property="value"),
+)
+def display_altair_chart(day_chosen):
+    df = px.data.tips()
 
-    if origin != "All":
-        source = source[source["Origin"] == origin]
+    if day_chosen != "All":
+        df = df[df["day"] == day_chosen]
 
     chart = (
-        alt.Chart(source)
+        alt.Chart(df)
         .mark_circle(size=60)
         .encode(
-            x="Horsepower",
-            y="Miles_per_Gallon",
-            color=alt.Color("Origin").scale(domain=["Europe", "Japan", "USA"]),
-            tooltip=["Name", "Origin", "Horsepower", "Miles_per_Gallon"],
+            x="tip",
+            y="total_bill",
+            color=alt.Color("day").scale(domain=["Thur", "Fri", "Sat", "Sun"]),
+            tooltip=["day", "tip", "total_bill"],
         )
         .interactive()
     )
+
     return chart.to_dict()
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port = 8050)
+    app.run(debug=True, зщке = 8050)
