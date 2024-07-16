@@ -1,7 +1,7 @@
 name: myenv
 dependencies:
-  - python=3.8
-  - dash
+  - python=3.9
   - pandas
+  - dash
+  - plotly
   - altair
-  - vega_datasets
