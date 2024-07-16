@@ -22,4 +22,4 @@ WORKDIR /app
 EXPOSE 8050
 
 # Команда для запуска приложения
-CMD ["conda", "run", "-n", "env", "python", "app.py"]
+CMD ["conda", "run", "-n", "myenv", "python", "app.py"]
