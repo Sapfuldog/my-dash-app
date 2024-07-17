@@ -1,6 +1,4 @@
-from dash import Dash, html
-import altair as alt
-import dash_vega_components as dvc
+from dash import Dash, html, dcc, callback, Output, Input
 import plotly.express as px
 import pandas as pd
 
