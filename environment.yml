@@ -4,7 +4,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.9
-  - dash=0.29.0
+  - dash
   - pandas
   - altair
   - vega_datasets
