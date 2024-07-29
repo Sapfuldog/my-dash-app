@@ -1,23 +1,45 @@
 body {
-    font-family: 'Arial', sans-serif;
+    font-family:  Arial, Helvetica, sans-serif;
+    width:auto;
 }
 
 .navbar-vertical {
-    background-color: #c1e1f0;
-    padding: 20px;
+    background-color: #eff7f200;
+    padding: 0 20px;
+    margin-left: 0;
+    position: fixed;
+    width: 220px;  /* Фиксированная ширина навбара */
+    overflow: hidden;  /* Скрытие переполненного содержимого */
+    white-space: nowrap;  /* Отключение переноса текста */
+    border-radius: 15px;
+}
+
+h1 {
+    flex-shrink: 1; /* Позволяет заголовку сжиматься */
+    margin-left: 30%;
+    font-size: min(5vw, 1rem); /* Ширина в процентах или максимальный размер шрифта */
+    overflow: hidden; /* Прятать переполняющий текст */
+}
+
+.container {
+    padding: 0 20px;
+    box-sizing: border-box;
+    text-align: center;
 }
 
 .navbar-vertical .nav-link {
     color: #000;
     font-size: 16px;
     padding: 10px 0;
-    display: flex;
-    align-items: center;
+    display: block;  /* Изменение на block для переносов */
+    white-space: normal;  /* Включение переноса текста */
+    overflow: hidden;
+    text-overflow: ellipsis;
     transition: font-size 0.3s ease-in-out;
 }
 
 .navbar-vertical .nav-link:hover {
-    background-color: #0de2ed;
+    background-color: #d9f0e6;
     border-radius: 5px;
 }
 
@@ -37,6 +59,8 @@ body {
 
 .container-fluid {
     margin-top: 20px;
+    transition: margin-left 0.5s ease-in-out;
+    width: auto;
 }
 
 .page-transition {

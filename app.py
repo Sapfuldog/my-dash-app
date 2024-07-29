@@ -2,47 +2,87 @@ import dash
 from dash import dcc, html, Input, Output
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
-import time
+import plotly.express as px
 
 # Инициализация приложения Dash с Bootstrap темой
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, "https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"])
 
-# Пример данных
-months = {
-    "2023": ["Jan 2023", "Apr 2023", "Jul 2023", "Oct 2023"],
-    "2024": ["Jan 2024", "Apr 2024", "Jul 2024", "Oct 2024"]
+import pandas as pd
+import numpy as np
+
+# Определяем количество строк
+num_rows = 10000
+
+# Создаем примеры данных
+data = {
+    'Дата': pd.date_range(start='2023-01-01', periods=num_rows, freq='h'),
+    'Контрагент': np.random.choice(['Компания А', 'Компания B', 'Компания C', 'Компания D', 
+                                    'Компания E', 'Компания F', 'Компания G', 'Компания H', 
+                                    'Компания I', 'Компания J'], size=num_rows),
+    'Сумма': np.random.randint(-1000, 50000, size=num_rows),
+    'Договор': [f'Договор №{i}' for i in np.random.randint(1, 1000, size=num_rows)],
+    'Статья учета': np.random.choice(['Услуги', 'Товары', 'Аренда', 'Зарплата', 'Командировки', 
+                                      'Закупки', 'Прочее', 'Капитальные затраты', 'Реклама', 
+                                      'Консультации'], size=num_rows),
+    'Банковский счет': [f'Счет №{np.random.randint(1000, 9999)}' for _ in range(num_rows)]
 }
 
-profit_data = {
-    "2023": [19, 20, 22, 21],
-    "2024": [21, 25, 23, 27]
-}
+# Создаем DataFrame
+df = pd.DataFrame(data)
+df['Дата '] = df['Дата'].dt.to_period('M')
+df_M = df.groupby('Дата ')['Сумма'].sum().reset_index()
+df_M['Дата '] = df_M['Дата '].dt.to_timestamp()
+df_M['Цвета'] = df_M['Сумма'].apply(lambda x: 'rgb(0,255,0)' if x >= 0 else 'rgb(255,0,0)')
+df_M['Накопительно'] = df_M['Сумма'].cumsum()
 
-consulting_data = {
-    "2023": [5, 6, 6.5, 7],
-    "2024": [6, 7, 7.5, 8]
-}
-
-software_data = {
-    "2023": [14, 14, 15.5, 16],
-    "2024": [15, 16, 16.5, 18]
-}
 
 # Функция для создания графиков
-def create_figures(period):
+def create_figures(period): 
     fig_profit = go.Figure()
-    fig_profit.add_trace(go.Scatter(x=months[period], y=profit_data[period], mode='lines+markers', name=period))
-    fig_profit.update_layout(title='Операционная прибыль', yaxis_title='Прибыль (млн ₽)')
+    fig_profit.add_trace(
+        go.Scatter(                             
+            x= df_M['Дата '],
+            y= df_M['Накопительно'], 
+            fill='tozeroy',
+            line=dict(shape='spline'),
+            mode='lines+markers'
+            ))
+    fig_profit.update_layout(
+        title=' ', 
+        yaxis_title='Число покупателей (тыс.)')    
+    fig_profit.update_yaxes(zeroline=True, zerolinewidth=2, zerolinecolor='LightPink')
+
 
     fig_contract = go.Figure()
-    fig_contract.add_trace(go.Bar(x=['ПО', 'Консалтинг', 'Прочее'], y=[111, 155, 45], name='2023'))
-    fig_contract.add_trace(go.Bar(x=['ПО', 'Консалтинг', 'Прочее'], y=[117, 174, 68], name='2024'))
-    fig_contract.update_layout(title='Средняя сумма контракта за месяц', barmode='group')
+    fig_contract.add_trace(
+        go.Bar(
+            x=df['Статья учета'], 
+            y=df['Сумма'], 
+            name='Статья'))
+    fig_contract.add_trace(go.Bar(
+        x=df['Контрагент'], 
+        y=df['Сумма'], 
+        name='Контрагент'))
+    fig_contract.update_layout(
+        title=' ', 
+        barmode='group')
 
     fig_customers = go.Figure()
-    fig_customers.add_trace(go.Scatter(x=months[period], y=[2115, 3050, 4300, 5600], mode='lines+markers', name='ПО'))
-    fig_customers.add_trace(go.Scatter(x=months[period], y=[574, 800, 950, 1047], mode='lines+markers', name='Консалтинг'))
-    fig_customers.update_layout(title='Число покупателей за месяц', yaxis_title='Число покупателей (тыс.)')
+    fig_customers.add_trace(
+        go.Scatter(
+            x=df['Дата'], 
+            y=df['Сумма'], 
+            mode='lines+markers', 
+            name='ПО'))
+    fig_customers.add_trace(
+        go.Scatter(
+            x=df['Дата'], 
+            y=df['Сумма'], 
+            mode='lines+markers', 
+            name=' '))
+    fig_customers.update_layout(
+        title='Число покупателей за месяц', 
+        yaxis_title='Число покупателей (тыс.)')
 
     return fig_profit, fig_contract, fig_customers
 
@@ -52,10 +92,11 @@ fig_profit, fig_contract, fig_customers = create_figures("2024")
 # Создание функции для получения контента страницы
 def get_page_content(pathname):
     if pathname == "/":
-        return html.H1("Добро пожаловать на главную страницу")
+        return dbc.Card([
+            dbc.CardHeader("Добро пожаловать на главную страницу")])
     elif pathname == "/report1":
         return dbc.Card([
-            dbc.CardHeader("Операционная прибыль"),
+            dbc.CardHeader("Динамика денежных потоков"),
             dbc.CardBody(dcc.Graph(id='profit-graph', figure=fig_profit))
         ])
     elif pathname == "/report2":
@@ -92,20 +133,11 @@ app.layout = dbc.Container([
     ])
 ], fluid=True)
 
-@app.callback(
-    Output('page-content', 'children'),
-    [Input('url', 'pathname')]
-)
+# Коллбек для обновления контента страницы
+@app.callback(Output('page-content', 'children'),
+              Input('url', 'pathname'))
 def display_page(pathname):
     return get_page_content(pathname)
-
-@app.callback(
-    Output('page-content', 'className'),
-    [Input('url', 'pathname')]
-)
-def animate_page_transition(pathname):
-    time.sleep(0.2)
-    return 'page-transition page-enter-active'
 
 if __name__ == '__main__':
     app.run_server(debug=True)
