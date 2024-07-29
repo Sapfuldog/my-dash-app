@@ -1,0 +1,97 @@
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+.navbar-vertical {
+    background-color: #c1e1f0;
+    padding: 20px;
+}
+
+.navbar-vertical .nav-link {
+    color: #000;
+    font-size: 16px;
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    transition: font-size 0.3s ease-in-out;
+}
+
+.navbar-vertical .nav-link:hover {
+    background-color: #0de2ed;
+    border-radius: 5px;
+}
+
+.navbar-vertical .nav-link i {
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.card {
+    margin-bottom: 20px;
+}
+
+.container-fluid {
+    margin-top: 20px;
+}
+
+.page-transition {
+    transition: opacity 0.5s ease-in-out;
+}
+
+.page-enter {
+    opacity: 0;
+}
+
+.page-enter-active {
+    opacity: 1;
+}
+
+.page-leave {
+    opacity: 1;
+}
+
+.page-leave-active {
+    opacity: 0;
+}
+
+/* Медиа-запросы для адаптации текста в навбаре */
+@media (max-width: 1200px) {
+    .navbar-vertical .nav-link {
+        font-size: 14px;
+    }
+    .navbar-vertical .nav-link i {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 992px) {
+    .navbar-vertical .nav-link {
+        font-size: 12px;
+    }
+    .navbar-vertical .nav-link i {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-vertical .nav-link {
+        font-size: 10px;
+    }
+    .navbar-vertical .nav-link i {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .navbar-vertical .nav-link {
+        font-size: 8px;
+    }
+    .navbar-vertical .nav-link i {
+        font-size: 12px;
+    }
+}
