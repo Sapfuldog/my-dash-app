@@ -129,7 +129,7 @@ H1 {
     max-width: 100%;  /* Максимальная ширина контейнера на всю доступную ширину */
     padding: 20px;  /* Отступы внутри контейнера */
     border-radius: 15px;  /* Скругленные углы */
-    background-color: #f8f9fa;  /* Светлый фон для контейнера */   
+    background-color: #ffffff;  /* Светлый фон для контейнера */    
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Тень для создания эффекта поднятого элемента */
 }
 
@@ -139,12 +139,13 @@ H1 {
     flex-direction: column;  /* Вертикальное размещение графиков */
     gap: 20px;  /* Расстояние между графиками */
     margin: 20px auto;  /* Отступы сверху и снизу, авто-отступы по бокам */
-    width: 100%;  /* Ширина контейнера на всю доступную ширину */
+    width: 100% auto;  /* Ширина контейнера на всю доступную ширину */
     max-width: 100%;  /* Максимальная ширина контейнера на всю доступную ширину */
     padding: 20px;  /* Отступы внутри контейнера */
     border-radius: 15px;  /* Скругленные углы */
     background-color: #f8f9fa;  /* Светлый фон для контейнера */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Тень для создания эффекта поднятого элемента */
+    height: 750px; 
 }
 
 /* Стили для графиков внутри контейнера */
@@ -155,6 +156,32 @@ H1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  /* Легкая тень вокруг графиков */
     margin: 0;  /* Убедитесь, что у графиков нет внешних отступов */
     height: 750px;  /* Задайте фиксированную высоту, если графики по-прежнему слишком маленькие */
+    border-radius: 15px;
+}
+/* Style for dropdowns */
+.dcc-dropdown {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+    text-align: left;
+    width: 170px; 
 }
 
+/* Style the dropdown options */
+.dcc-dropdown .Select-control {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: none;
+    font-size: 12px;
+    text-align: left; 
+}
+
+.dcc-dropdown .Select-menu {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    text-align: left;
+}
 

@@ -3,11 +3,13 @@ import dash_bootstrap_components as dbc
 import dash_ag_grid as dag
 import data
 from figures import create_figures
+import pandas as pd
 
 def create_layout():
     df, df_A, df_M = data.get_data()
-
-    # Начальные графики
+    df_cur, df_fut= data.get_data_cur_fut()
+    df = pd.concat([df_cur, df_fut], ignore_index=True)
+    
     fig_profit, fig_incomes, fig_expenses, fig_customers = create_figures(df)
 
     grid_size = dbc.Row(dbc.Col(dbc.ButtonGroup([dbc.Button(id='less', n_clicks=0, children='<'),
