@@ -8,7 +8,7 @@ def create_layout():
     df, df_A, df_M = data.get_data()
 
     # Начальные графики
-    fig_profit, fig_contract, fig_customers = create_figures(df)
+    fig_profit, fig_incomes, fig_expenses, fig_customers = create_figures(df)
 
     grid_size = dbc.Row(dbc.Col(dbc.ButtonGroup([dbc.Button(id='less', n_clicks=0, children='<'),
                                                  dbc.Button(id='more', n_clicks=0, children='>')]),
