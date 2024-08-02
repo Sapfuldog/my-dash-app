@@ -7,9 +7,11 @@ from datetime import datetime, date
 def create_figures(df_filtered): 
     
     df_filtered['Накопительно'] = df_filtered['Сумма'].cumsum()
-      # Фильтрация данных по расходам и доходам
+
+    # Фильтрация данных по расходам и доходам
     expenses_df = df_filtered[df_filtered['Сумма'] < 0].copy()
     incomes_df = df_filtered[df_filtered['Сумма'] > 0].copy()
+
     # Создание фигуры с несколькими подграфиками
     fig_profit = make_subplots(
         rows=3, cols=2,
@@ -17,7 +19,7 @@ def create_figures(df_filtered):
         shared_yaxes=True,
         vertical_spacing=0.02, 
         horizontal_spacing=0.01,
-        row_heights=[0.7,0.7, 4.7],  # Устанавливаем высоту строк
+        row_heights=[0.7, 0.7, 4.7],  # Устанавливаем высоту строк
         column_widths=[0.7, 0.02],  # Устанавливаем ширину колонок
         specs=[[{"type": "bar"}, {"type": "scatter"}],
                [{"type": "bar"}, {"type": "histogram"}],
@@ -25,34 +27,52 @@ def create_figures(df_filtered):
     )
 
     start_date = datetime.now()
-    df_filtered_by_date = df_filtered[(df_filtered['Дата'] >= start_date)]
-    df_filtered_by_date_undo = df_filtered[(df_filtered['Дата'] < start_date)]
+    df_filtered_by_date = df_filtered[df_filtered['Дата'] >= start_date]
+    df_filtered_by_date_undo = df_filtered[df_filtered['Дата'] < start_date]
+
     df_pos = df_filtered[df_filtered['Сумма'] > 0]
     df_neg = df_filtered[df_filtered['Сумма'] < 0] 
     df_neg.loc[:, 'Сумма'] = -df_neg['Сумма']
-    
+
     weekly_pos = df_pos.resample('W-Mon', on='Дата')['Сумма'].sum().reset_index()
     weekly_neg = df_neg.resample('W-Mon', on='Дата')['Сумма'].sum().reset_index()
-      
+
+    def SetGreenColor(y):
+        start_color = (153, 255, 153)  # (99ff99)
+        end_color = (0, 128, 0)        # (008000)
+        
+        if y <= 0:
+            return '#{:02x}{:02x}{:02x}'.format(*start_color)
+        elif y >= 50000000:
+            return '#{:02x}{:02x}{:02x}'.format(*end_color)
+        else:
+            ratio = y / 50000000
+            r = int(start_color[0] + (end_color[0] - start_color[0]) * ratio)
+            g = int(start_color[1] + (end_color[1] - start_color[1]) * ratio)
+            b = int(start_color[2] + (end_color[2] - start_color[2]) * ratio)
+            return '#{:02x}{:02x}{:02x}'.format(r, g, b)
     
-    def SetColor(y):
-            if(y >= 50000000):
-                return '#0ef725'
-            elif(y >= 5000000):
-                return '#e8f70e'
-            elif(y >= 1000000):
-                return '#0ef7e8'
-            else:
-                return '#01ff00'
-     
+    def SetRedColor(y):
+        start_color = (255, 153, 153)  # (ff9999)
+        end_color = (128, 0, 0)        # (800000)
+        
+        if y <= 0:
+            return '#{:02x}{:02x}{:02x}'.format(*start_color)
+        elif y >= 50000000:
+            return '#{:02x}{:02x}{:02x}'.format(*end_color)
+        else:
+            ratio = y / 50000000
+            r = int(start_color[0] + (end_color[0] - start_color[0]) * ratio)
+            g = int(start_color[1] + (end_color[1] - start_color[1]) * ratio)
+            b = int(start_color[2] + (end_color[2] - start_color[2]) * ratio)
+            return '#{:02x}{:02x}{:02x}'.format(r, g, b)
+
     fig_profit.add_trace(
         go.Bar(                             
             x=weekly_pos['Дата'],
             y=weekly_pos['Сумма'], 
             showlegend=False,
-            #fill='tozeroy',
-            #line=dict(shape='spline'),
-            marker=dict(color = list(map(SetColor, weekly_pos['Сумма'])))
+            marker=dict(color=list(map(SetGreenColor, weekly_pos['Сумма'])))
         ),
         row=1, col=1
     ) 
@@ -62,22 +82,18 @@ def create_figures(df_filtered):
             x=weekly_neg['Дата'],
             y=weekly_neg['Сумма'], 
             showlegend=False,
-            #fill='tozeroy',
-            #line=dict(shape='spline'),
-            marker=dict(color = list(map(SetColor, weekly_neg['Сумма'])))
+            marker=dict(color=list(map(SetRedColor, weekly_neg['Сумма'])))
         ),
         row=2, col=1
     ) 
     
-        # Добавление трасс на график
     fig_profit.add_trace(
         go.Scatter(                             
             x=df_filtered_by_date['Дата'],
             y=df_filtered_by_date['Накопительно'], 
-            #fill='tozeroy',
-            #line=dict(shape='spline'),
             showlegend=False,
-            marker_color='blue'
+            marker_color='blue',
+            connectgaps=True
         ),
         row=3, col=1
     )
@@ -85,10 +101,9 @@ def create_figures(df_filtered):
         go.Scatter(                             
             x=df_filtered_by_date_undo['Дата'],
             y=df_filtered_by_date_undo['Накопительно'], 
-            #fill='tozeroy',
-            #line=dict(shape='spline'),
             showlegend=False,
-            marker_color='#04adef'
+            marker_color='#04adef',
+            connectgaps=True
         ),
         row=3, col=1
     )
@@ -103,103 +118,112 @@ def create_figures(df_filtered):
         row=3, col=2
     )    
 
-    # Обновление макета графика
     fig_profit.update_layout(
         title='',
-        xaxis=dict(title=''),  # Очищаем подпись для первой оси x
-        yaxis=dict(title=''),  # Очищаем подпись для первой оси y
-        xaxis2=dict(title=''),  # Очищаем подпись для второй оси x
-        yaxis2=dict(title=''),  # Очищаем подпись для второй оси y
-        xaxis3=dict(title=''),  # Очищаем подпись для третьей оси x
-        yaxis3=dict(title=''),  # Очищаем подпись для третьей оси y
-        xaxis4=dict(title=''),  # Добавляем подпись для четвертой оси x
-        yaxis4=dict(title=''),  # Очищаем подпись для четвертой оси y
-        xaxis5=dict(title='Дата'),  # Добавляем подпись для пятой оси x
-        yaxis5=dict(title=''),  # Очищаем подпись для пятой оси y
-        xaxis6=dict(title=''),  # Добавляем подпись для шестой оси x
-        yaxis6=dict(title='')  # Очищаем подпись для шестой оси y
+        xaxis=dict(title=''),
+        yaxis=dict(title=''),
+        xaxis2=dict(title=''),
+        yaxis2=dict(title=''),
+        xaxis3=dict(title=''),
+        yaxis3=dict(title=''),
+        xaxis4=dict(title=''),
+        yaxis4=dict(title=''),
+        xaxis5=dict(title='Дата'),
+        yaxis5=dict(title=''),
+        xaxis6=dict(title=''),
+        yaxis6=dict(title='')
     )
 
-    # fig_profit.update_yaxes(zeroline=True, zerolinewidth=2, zerolinecolor='White', tickfont=dict(size=6), row=1, col=1)
-    # fig_profit.update_yaxes(zeroline=True, zerolinewidth=2, zerolinecolor='White', tickfont=dict(size=6),autorange='reversed', row=2, col=1)
     fig_profit.update_xaxes(matches='x')
     fig_profit.update_xaxes(tickfont=dict(size=1), row=3, col=2)
-    fig_profit.update_yaxes(   
+    fig_profit.update_yaxes(
         type='log',
-        range=[0,10],
+        range=[0, 10],
         tickfont=dict(size=6),
-        # tickvals=[0, 1e5, 1e6, 1e8, 1e9], 
-        # ticktext=['0', '100k', '1M', '100M', '1B'],
-        # tickformat=".2f",
         row=1, col=1
     )
-    fig_profit.update_yaxes(   
+    fig_profit.update_yaxes(
         type='log',
-        range=[0,5],
+        range=[0, 5],
         tickfont=dict(size=6),
-        # tickvals=[0, 1e5, 1e6, 1e8], 
-        # ticktext=['0', '100k','-1M', '-100M'],
-        # tickformat=".2f",
         autorange='reversed',
         row=2, col=1
     )
-    
-    
-    
 
-    # Преобразование отрицательных сумм расходов в положительные для корректного отображения в treemap
     expenses_df['Сумма'] = expenses_df['Сумма'].abs()
 
-    # Группировка по 'Статья учета' и суммирование по 'Сумма' для расходов
     grouped_expenses = expenses_df.groupby('Статья учета')['Сумма'].sum().reset_index()
     grouped_expenses_ = expenses_df.groupby(['Статья учета', 'Контрагент'])['Сумма'].sum().reset_index()
+    grouped_expenses_1_ = expenses_df.groupby(['Статья учета', 'Контрагент', 'Заказ'])['Сумма'].sum().reset_index()
 
-    # Генерация уникальных идентификаторов
     expense_account_ids = [f"exp_{i}" for i in range(len(grouped_expenses))]
-    expense_contractor_ids = [f"exp_{i}_{j}" for i in range(len(grouped_expenses)) for j in range(len(grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]]))]
+    expense_contractor_ids = []
+    expense_order_ids = []
 
-    # Создание списков для treemap по расходам
-    expenses_labels = list(grouped_expenses['Статья учета']) + list(grouped_expenses_['Контрагент'])
-    expenses_parents = [''] * len(grouped_expenses['Статья учета']) + [f"exp_{i}" for i in range(len(grouped_expenses)) for _ in range(len(grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]]))]
-    #expenses_values = list(grouped_expenses['Сумма']) + list(grouped_expenses_['Сумма'])
-    expenses_values = ['0'] * len(grouped_expenses['Сумма']) + list(grouped_expenses_['Сумма'])
-    expenses_ids = expense_account_ids + expense_contractor_ids
+    for i in range(len(grouped_expenses)):
+        contractors = grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]]
+        for j in range(len(contractors)):
+            expense_contractor_ids.append(f"exp_{i}_{j}")
 
-    # # # Создание графика treemap для расходов
+
+    expenses_labels = (
+        [f"{row['Статья учета']}<br>{row['Сумма']:,}" for _, row in grouped_expenses.iterrows()] +
+        [f"{row['Контрагент']}<br>{row['Сумма']:,}" for _, row in grouped_expenses_.iterrows()]
+    )
+    
+    expenses_parents = (
+        [''] * len(grouped_expenses) +
+        [f"exp_{i}" for i in range(len(grouped_expenses)) for _ in range(len(grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]]))] 
+    )
+    
+    expenses_values = (
+        ['0'] * len(grouped_expenses) +
+        list(grouped_expenses_['Сумма'])
+    )
+    
     fig_expenses = go.Figure(go.Treemap(
-         ids=expenses_ids,
-         labels=expenses_labels,
-         parents=expenses_parents,
-         values=expenses_values
-       ))
+        ids=expense_account_ids + expense_contractor_ids + expense_order_ids,
+        labels=expenses_labels,
+        parents=expenses_parents,
+        values=expenses_values
+    ))
     fig_expenses.update_layout(title="Структура расходов")
 
-    # Группировка по 'Статья учета' и суммирование по 'Сумма' для доходов
     grouped_incomes = incomes_df.groupby('Статья учета')['Сумма'].sum().reset_index()
     grouped_incomes_ = incomes_df.groupby(['Статья учета', 'Контрагент'])['Сумма'].sum().reset_index()
+    grouped_incomes_1_ = incomes_df.groupby(['Статья учета', 'Контрагент', 'Заказ'])['Сумма'].sum().reset_index()
 
-    # Генерация уникальных идентификаторов
     income_account_ids = [f"inc_{i}" for i in range(len(grouped_incomes))]
-    income_contractor_ids = [f"inc_{i}_{j}" for i in range(len(grouped_incomes)) for j in range(len(grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]]))]
+    income_contractor_ids = []
+    income_order_ids = []
 
-    # Создание списков для treemap по доходам
-    incomes_labels = list(grouped_incomes['Статья учета']) + list(grouped_incomes_['Контрагент'])
-    incomes_parents = [''] * len(grouped_incomes['Статья учета']) + [f"inc_{i}" for i in range(len(grouped_incomes)) for _ in range(len(grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]]))]
-    #incomes_values = list(grouped_incomes['Сумма']) + list(grouped_incomes_['Сумма'])
-    incomes_values = ['0'] * len(grouped_incomes['Сумма']) + list(grouped_incomes_['Сумма'])
-    incomes_ids = income_account_ids + income_contractor_ids
+    for i in range(len(grouped_incomes)):
+        contractors = grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]]
+        for j in range(len(contractors)):
+            income_contractor_ids.append(f"inc_{i}_{j}")
 
+    incomes_labels = (
+        [f"{row['Статья учета']}<br>{row['Сумма']:,}" for _, row in grouped_incomes.iterrows()] +
+        [f"{row['Контрагент']}<br>{row['Сумма']:,}" for _, row in grouped_incomes_.iterrows()]
+    )
     
-    # # # Создание графика treemap для доходов
+    incomes_parents = (
+        [''] * len(grouped_incomes) +
+        [f"inc_{i}" for i in range(len(grouped_incomes)) for _ in range(len(grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]]))])
+    
+    incomes_values = (
+        ['0'] * len(grouped_incomes) +
+        list(grouped_incomes_['Сумма'])
+    )
+    
     fig_incomes = go.Figure(go.Treemap(
-         ids=incomes_ids,
-         labels=incomes_labels,
-         parents=incomes_parents,
-         values=incomes_values
-      ))
+        ids=income_account_ids + income_contractor_ids + income_order_ids,
+        labels=incomes_labels,
+        parents=incomes_parents,
+        values=incomes_values
+    ))
     fig_incomes.update_layout(title="Структура доходов")
 
-    # Создание графика для анализа клиентов
     fig_customers = go.Figure()
     fig_customers.add_trace(
         go.Scatter(

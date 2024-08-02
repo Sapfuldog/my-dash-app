@@ -9,7 +9,8 @@ def register_callbacks(app):
     def display_page(pathname):
         df, df_A, df_M = data.get_data()
         fig_profit, fig_incomes, fig_expenses, fig_customers = create_figures(df)
-        df_cur, df_fut= data.get_data_cur_fut()
+        df_cur, df_fut = data.get_data_cur_fut()
+        
         # Очистка и приведение значений к строкам
         def clean_value(value):
             if isinstance(value, str):
@@ -21,6 +22,13 @@ def register_callbacks(app):
         st_options = [{'label': clean_value(st), 'value': clean_value(st)} for st in df_fut['Статья учета'].unique()]
         dir_options = [{'label': clean_value(d), 'value': clean_value(d)} for d in df_fut['Направление деятельности'].unique()]
         
+        dropdown_style = {
+            'width': '300px',
+            'textOverflow': 'ellipsis',
+            'whiteSpace': 'nowrap',
+            'overflow': 'hidden'
+        }
+
         if pathname == '/report1':
             return html.Div([
                 html.H3('Остатки на расчетных счетах'),
@@ -32,7 +40,8 @@ def register_callbacks(app):
                             value=[],  # Изначально ничего не выбрано
                             multi=True,
                             placeholder='Выберите банковский счет',
-                            className='dcc-dropdown'  # Apply CSS class
+                            className='dcc-dropdown' ,  # Apply CSS class
+                            optionHeight=120
                         ),
                         dcc.Dropdown(
                             id='bank-filter',
@@ -40,7 +49,8 @@ def register_callbacks(app):
                             value=[],  # Изначально ничего не выбрано
                             multi=True,
                             placeholder='Выберите банк',
-                            className='dcc-dropdown'  # Apply CSS class
+                            className='dcc-dropdown',  # Apply CSS class
+                            optionHeight=120
                         ),
                         dcc.Dropdown(
                             id='st-filter',
@@ -48,7 +58,9 @@ def register_callbacks(app):
                             value=[],  # Изначально ничего не выбрано
                             multi=True,
                             placeholder='Какие статьи не учитывать',
-                            className='dcc-dropdown'  # Apply CSS class
+                            className='dcc-dropdown' ,  # Apply CSS class
+                            optionHeight=120
+
                         ),
                         dcc.Dropdown(
                             id='d-filter',
@@ -56,7 +68,9 @@ def register_callbacks(app):
                             value=[],  # Изначально ничего не выбрано
                             multi=True,
                             placeholder='Выберите направление',
-                            className='dcc-dropdown'  # Apply CSS class
+                            className='dcc-dropdown',  # Apply CSS class
+                            optionHeight=60
+
                         )
                     ], className='graph-container-vertical'),
                     dcc.Graph(id='profit-graph', figure=fig_profit, className='dcc-graph')
@@ -95,7 +109,7 @@ def register_callbacks(app):
     )
     def update_graphs(selected_accounts, relayoutData, selected_banks, selected_d, selected_st, profit_figure):
         df, df_A, df_M = data.get_data()
-        df_cur, df_fut= data.get_data_cur_fut()
+        df_cur, df_fut = data.get_data_cur_fut()
                 
         if selected_st:
             df_fut = df_fut[~df_fut['Статья учета'].isin(selected_st)]
@@ -112,7 +126,16 @@ def register_callbacks(app):
         if relayoutData and 'xaxis.range[0]' in relayoutData and 'xaxis.range[1]' in relayoutData:
             start_date = relayoutData['xaxis.range[0]']
             end_date = relayoutData['xaxis.range[1]']
+            
+            df_f = df[(df['Дата'] < start_date)]
+            df_f.loc[:, 'Накопительно'] = df_f['Сумма'].cumsum()
+
+            last_row = df_f.tail(1)
+            last_row.loc[:, 'Сумма'] = last_row['Накопительно']
+            
             df = df[(df['Дата'] >= start_date) & (df['Дата'] <= end_date)]
+            
+            df = pd.concat([last_row, df], ignore_index=True)
         
         fig_profit, fig_incomes, fig_expenses, _ = create_figures(df)
         return fig_profit, fig_incomes, fig_expenses
@@ -123,7 +146,7 @@ def register_callbacks(app):
     )
     def update_account_options(selected_banks):
         df, _, _ = data.get_data()
-        df_cur, df_fut= data.get_data_cur_fut()
+        df_cur, df_fut = data.get_data_cur_fut()
         if selected_banks:
             # Фильтрация данных по выбранным банкам
             filtered_df = df_fut[df_fut['Банк'].isin(selected_banks)]
@@ -145,7 +168,7 @@ def register_callbacks(app):
     )
     def update_bank_options(selected_accounts):
         df, _, _ = data.get_data()
-        df_cur, df_fut= data.get_data_cur_fut()        
+        df_cur, df_fut = data.get_data_cur_fut()        
         if selected_accounts:
             # Фильтрация данных по выбранным банковским счетам
             filtered_df = df_fut[df_fut['Банковский счет'].isin(selected_accounts)]
