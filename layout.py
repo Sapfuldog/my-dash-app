@@ -9,8 +9,6 @@ def create_layout():
     df, df_A, df_M = data.get_data()
     df_cur, df_fut= data.get_data_cur_fut()
     df = pd.concat([df_cur, df_fut], ignore_index=True)
-    
-    fig_profit, fig_incomes, fig_expenses, fig_customers = create_figures(df)
 
     grid_size = dbc.Row(dbc.Col(dbc.ButtonGroup([dbc.Button(id='less', n_clicks=0, children='<'),
                                                  dbc.Button(id='more', n_clicks=0, children='>')]),

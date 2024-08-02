@@ -133,7 +133,7 @@ def register_callbacks(app):
             df = pd.concat([last_row, df], ignore_index=True)
         
         fig_profit, fig_incomes, fig_expenses, _, fig_pie_ras, fig_pie_pos = create_figures(df)
-        return fig_profit, fig_incomes, fig_expenses, fig_pie_pos, fig_pie_ras
+        return fig_profit, fig_incomes, fig_expenses, fig_pie_ras, fig_pie_pos
 
     @app.callback(
         Output('account-filter', 'options'),

@@ -156,14 +156,14 @@ def create_figures(df_filtered):
     grouped_expenses_ = expenses_df.groupby(['Статья учета', 'Контрагент'])['Сумма'].sum().reset_index()
     grouped_expenses_1_ = expenses_df.groupby(['Статья учета', 'Контрагент', 'Заказ'])['Сумма'].sum().reset_index()
 
-    expense_account_ids = [f"exp_{i}" for i in range(len(grouped_expenses))]
+    expense_account_ids = [f"exp - {i}" for i in range(len(grouped_expenses))]
     expense_contractor_ids = []
     expense_order_ids = []
 
     for i in range(len(grouped_expenses)):
         contractors = grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]]
         for j in range(len(contractors)):
-            expense_contractor_ids.append(f"exp_{i}_{j}")
+            expense_contractor_ids.append(f"exp - {i} - {j}")
 
 
     expenses_labels = (
@@ -173,7 +173,7 @@ def create_figures(df_filtered):
     
     expenses_parents = (
         [''] * len(grouped_expenses) +
-        [f"exp_{i}" for i in range(len(grouped_expenses)) for _ in range(len(grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]]))] 
+        [f"exp - {i}" for i in range(len(grouped_expenses)) for _ in range(len(grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]]))] 
     )
     
     expenses_values = (
@@ -193,14 +193,14 @@ def create_figures(df_filtered):
     grouped_incomes_ = incomes_df.groupby(['Статья учета', 'Контрагент'])['Сумма'].sum().reset_index()
     grouped_incomes_1_ = incomes_df.groupby(['Статья учета', 'Контрагент', 'Заказ'])['Сумма'].sum().reset_index()
 
-    income_account_ids = [f"inc_{i}" for i in range(len(grouped_incomes))]
+    income_account_ids = [f"inc - {i}" for i in range(len(grouped_incomes))]
     income_contractor_ids = []
     income_order_ids = []
 
     for i in range(len(grouped_incomes)):
         contractors = grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]]
         for j in range(len(contractors)):
-            income_contractor_ids.append(f"inc_{i}_{j}")
+            income_contractor_ids.append(f"inc - {i} - {j}")
 
     incomes_labels = (
         [f"{row['Статья учета']}<br>{row['Сумма']:,}" for _, row in grouped_incomes.iterrows()] +
@@ -209,7 +209,7 @@ def create_figures(df_filtered):
     
     incomes_parents = (
         [''] * len(grouped_incomes) +
-        [f"inc_{i}" for i in range(len(grouped_incomes)) for _ in range(len(grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]]))])
+        [f"inc - {i}" for i in range(len(grouped_incomes)) for _ in range(len(grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]]))])
     
     incomes_values = (
         ['0'] * len(grouped_incomes) +
@@ -223,6 +223,30 @@ def create_figures(df_filtered):
         values=incomes_values
     ))
     fig_incomes.update_layout(title="Структура доходов")
+
+    fig_pie_ras = go.Figure(go.Sunburst(
+        ids= expense_account_ids + expense_contractor_ids + expense_order_ids,
+        labels = expenses_labels,
+        parents = expenses_parents,
+        textinfo='label+percent entry',  # добавляем подписи с долями
+        hovertemplate='<b>%{label}:</b> %{value}<br>Доля: %{percentRoot:.2%}<extra></extra>',
+        values = expenses_values       
+        )  
+    )
+    fig_pie_ras.update_layout(margin = dict(t=0, l=0, r=0, b=0))
+    
+    
+    
+    fig_pie_pos = go.Figure(go.Sunburst(
+        ids= income_account_ids + income_contractor_ids + income_order_ids,
+        labels = incomes_labels,
+        parents = incomes_parents,
+        textinfo='label+percent entry',  # добавляем подписи с долями
+        hovertemplate='<b>%{label}:</b> %{value}<br>Доля: %{percentRoot:.2%}<extra></extra>',
+        values = incomes_values        
+        )  
+    )
+    fig_pie_ras.update_layout(margin = dict(t=0, l=0, r=0, b=0))
 
     fig_customers = go.Figure()
     fig_customers.add_trace(
@@ -246,4 +270,4 @@ def create_figures(df_filtered):
         yaxis_title='Число покупателей (тыс.)'
     )
     
-    return fig_profit, fig_incomes, fig_expenses, fig_customers
+    return fig_profit, fig_incomes, fig_expenses, fig_customers, fig_pie_ras, fig_pie_pos
