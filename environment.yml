@@ -8,3 +8,6 @@ dependencies:
   - pandas
   - altair
   - vega_datasets
+  - dash_bootstrap_components
+  - dash_ag_grid
+  - numpy
