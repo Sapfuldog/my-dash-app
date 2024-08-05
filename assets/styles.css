@@ -99,20 +99,30 @@ body {
     grid-template-columns: repeat(3, 1fr);
     /* background-color: #e2bb10; */
 }
+/* Style for dropdowns */
 .dropdown {
-    grid-column-start: 1;
-    grid-column-end: 1;
-    grid-row-start: 2;
-    grid-row-end: 3;
-    display: grid;
-    grid-template-rows: repeat(4, auto); /* Или укажите конкретные значения */
-    gap: 0; /* Или укажите минимальное значение, если нужно */
-    /* background-color: #10e21e; Включите, если требуется */
+    margin-bottom: 20px;
+    font-size: 12px;
+    text-align: left;
+    width: 170px; 
 }
-.dropdown-item {
-    padding: 0; /* Уберите отступы, если они вызывают разрывы */
-    margin: 0; /* Уберите маргины, если они вызывают разрывы */
+
+/* Style the dropdown options */
+.dropdown .Select-control {
+    border-radius: 4px;
+    box-shadow: none;
+    font-size: 12px;
+    text-align: left; 
+    white-space: wrap;
 }
+
+.dropdown .Select-menu {
+    font-size: 12px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    text-align: left; 
+    white-space: wrap;
+}
+   
 .H3-grid{
     grid-column-start: 1;
     grid-column-end: 8;

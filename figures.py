@@ -158,7 +158,7 @@ def create_figures(df_filtered):
 
     # Обновление макета для fig_profit
     fig_profit.update_layout(
-        title='',
+        title='Динамика остатков на расчетных счетах (факт/план)',
         xaxis=dict(title=''),
         yaxis=dict(title=''),
         xaxis2=dict(title=''),
