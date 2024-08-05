@@ -66,12 +66,14 @@ def register_callbacks(app):
                     dcc.Graph(id='profit-graph', figure=fig_profit, className='dcc-graph')
                 ], className='graph-container'),
                 html.Div([
-                    dcc.Graph(id='pie-income-graph', figure=fig_pie_pos, className='dcc-graph'),
-                    dcc.Graph(id='pie-expenses-graph', figure=fig_pie_ras, className='dcc-graph')
-                ], className='graph-container'),
-                html.Div([
-                    dcc.Graph(id='incomes-graph', figure=fig_incomes, className='dcc-graph'),
-                    dcc.Graph(id='expenses-graph', figure=fig_expenses, className='dcc-graph')
+                        html.Div([
+                            dcc.Graph(id='incomes-graph', figure=fig_incomes, className='dcc-graph'),
+                            dcc.Graph(id='expenses-graph', figure=fig_expenses, className='dcc-graph')
+                            ], className='graph-container-col'),
+                        html.Div([
+                            dcc.Graph(id='pie-income-graph', figure=fig_pie_pos, className='dcc-graph'),
+                            dcc.Graph(id='pie-expenses-graph', figure=fig_pie_ras, className='dcc-graph')
+                            ], className='graph-container-col')
                 ], className='graph-container')
             ], className='container')
         elif pathname == '/report2':
