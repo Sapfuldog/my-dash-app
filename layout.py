@@ -25,20 +25,14 @@ def create_layout():
 
     return dbc.Container([
         dcc.Location(id='url', refresh=False),
-        dbc.Row([
-            dbc.Col([
-                dbc.Nav([
+        html.Div(dbc.Nav([
                     dbc.NavLink([html.I(className="bi bi-bank"), " Остатки на расчетных счетах"], href="/report1", className="nav-link"),
                     dbc.NavLink([html.I(className="bi bi-bar-chart"), " Анализ продаж"], href="/report2", className="nav-link"),
                     dbc.NavLink([html.I(className="bi bi-people"), " Расчеты с покупателями и поставщиками"], href="/report3", className="nav-link"),
-                    dbc.NavLink([html.I(className="bi bi-clock"), " Задолженность покупателей по срокам долга"], href="#", className="nav-link"),
-                    dbc.NavLink([html.I(className="bi bi-truck"), " Задолженность поставщикам по срокам долга"], href="#", className="nav-link"),
-                    dbc.NavLink([html.I(className="bi bi-boxes"), " Остатки товаров"], href="#", className="nav-link"),
-                    dbc.NavLink([html.I(className="bi bi-journal"), " Файловое хранилище"], href="#", className="nav-link"),
-                ], className="navbar-vertical")
-            ], width=2),
-            dbc.Col([
-                html.Div(id='page-content', className='page-transition')
-            ], width=10)
-        ])
-    ], fluid=True)
+                    dbc.NavLink([html.I(className="bi bi-clock"), " Задолженность покупателей по срокам долга"], href="/report4", className="nav-link"),
+                    dbc.NavLink([html.I(className="bi bi-truck"), " Задолженность поставщикам по срокам долга"], href="/report5", className="nav-link"),
+                    dbc.NavLink([html.I(className="bi bi-boxes"), " Остатки товаров"], href="/report6", className="nav-link"),
+                    dbc.NavLink([html.I(className="bi bi-journal"), " Файловое хранилище"], href="/report7", className="nav-link"),
+                ], vertical=True, pills=True, className="navbar-vertical"),className = 'child1'),
+        html.Div(id='page-content', className='child2')
+        ], fluid=True, className = 'parent')

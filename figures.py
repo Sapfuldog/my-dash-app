@@ -4,8 +4,34 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime, date
 import random
+from matplotlib import colors as mcolors
 
-# Вспомогательные функции
+def interpolate_color(start_color, end_color, factor):
+    """Интерполирует цвет от start_color к end_color на основе фактора"""
+    start_rgb = mcolors.hex2color(start_color)
+    end_rgb = mcolors.hex2color(end_color)
+    interpolated_rgb = [start + (end - start) * factor for start, end in zip(start_rgb, end_rgb)]
+    return mcolors.to_hex(interpolated_rgb)
+
+def generate_gradient_color(value, min_value, max_value, income=True):
+    # Нормализация значения
+    norm = (value - min_value) / (max_value - min_value)
+    
+    if income:
+        if norm < 0.5:
+            # От синего к жёлтому
+            return interpolate_color('#0000FF', '#FFFF00', norm * 2)
+        else:
+            # От жёлтого к зелёному
+            return interpolate_color('#FFFF00', '#00FF00', (norm - 0.5) * 2)
+    else:
+        if norm < 0.5:
+            # От синего к жёлтому
+            return interpolate_color('#0000FF', '#FFFF00', norm * 2)
+        else:
+            # От жёлтого к красному
+            return interpolate_color('#FFFF00', '#FF0000', (norm - 0.5) * 2)
+
 def SetGreenColor(y):
     start_color = (153, 255, 153)  # (99ff99)
     end_color = (0, 128, 0)        # (008000)
@@ -43,14 +69,15 @@ def prepare_data(df_filtered):
     # Фильтрация данных
     expenses_df = df_filtered[df_filtered['Сумма'] < 0].copy()
     incomes_df = df_filtered[df_filtered['Сумма'] > 0].copy()
-
+    incomes_df = incomes_df[incomes_df['Статья учета'] != 'Остаток на р/с']
+    
     # Подготовка данных по дате
     start_date = datetime.now()
     df_filtered_by_date = df_filtered[df_filtered['Дата'] >= start_date]
     df_filtered_by_date_undo = df_filtered[df_filtered['Дата'] < start_date]
 
     # Подготовка данных по неделям
-    df_pos = df_filtered[df_filtered['Сумма'] > 0]
+    df_pos = df_filtered[(df_filtered['Сумма'] > 0) & (df_filtered['Статья учета'] != 'Остаток на р/с')]
     df_neg = df_filtered[df_filtered['Сумма'] < 0]
     df_neg['Сумма'] = -df_neg['Сумма']
 
@@ -186,8 +213,12 @@ def create_figures(df_filtered):
         [f"exp - {i}" for i in range(len(grouped_expenses)) for _ in range(len(grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]]))]
     )
     expenses_values = [0] * len(grouped_expenses) + list(grouped_expenses_['Сумма'])
-    account_colors = {label: generate_random_color() for label in grouped_expenses['Статья учета']}
-    colors = [account_colors[label] for label in grouped_expenses['Статья учета']]
+    max_value = grouped_expenses['Сумма'].max()
+    min_value = grouped_expenses['Сумма'].min()
+    colors = [
+    generate_gradient_color(value, min_value, max_value, False)
+    for value in grouped_expenses['Сумма']
+    ]
     
     # Создание графиков Treemap для расходов
     fig_expenses = go.Figure(go.Treemap(
@@ -197,7 +228,13 @@ def create_figures(df_filtered):
         values=expenses_values,
         marker=dict(colors=colors)
     ))
-    fig_expenses.update_layout(title="Структура расходов")
+    fig_expenses.update_layout(
+                title={
+        'text': "Структура расходов",
+        'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
+        'x': 0,  # Устанавливаем позицию заголовка по горизонтали
+        'yanchor': 'top'
+        })
 
     # Подготовка данных для доходных графиков
     grouped_incomes = incomes_df.groupby('Статья учета')['Сумма'].sum().reset_index()
@@ -218,8 +255,12 @@ def create_figures(df_filtered):
         [f"inc - {i}" for i in range(len(grouped_incomes)) for _ in range(len(grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]]))]
     )
     incomes_values = [0] * len(grouped_incomes) + list(grouped_incomes_['Сумма'])
-    account_colors_2 = {label: generate_random_color() for label in grouped_incomes['Статья учета']}
-    colors_2 = [account_colors_2[label] for label in grouped_incomes['Статья учета']]
+    max_value2 = grouped_incomes['Сумма'].max()
+    min_value2 = grouped_incomes['Сумма'].min()
+    colors_2 = [
+    generate_gradient_color(value, min_value2, max_value2, True)
+    for value in grouped_incomes['Сумма']
+    ]
     
     # Создание графиков Treemap для доходов
     fig_incomes = go.Figure(go.Treemap(
@@ -229,7 +270,13 @@ def create_figures(df_filtered):
         values=incomes_values,
         marker=dict(colors=colors_2)
     ))
-    fig_incomes.update_layout(title="Структура доходов")
+    fig_incomes.update_layout(
+        title={
+        'text': "Структура доходов",
+        'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
+        'x': 0,  # Устанавливаем позицию заголовка по горизонтали
+        'yanchor': 'top'
+        })
 
     # Создание диаграмм Sunburst для расходов
     fig_pie_ras = go.Figure(go.Sunburst(
@@ -242,7 +289,15 @@ def create_figures(df_filtered):
         insidetextorientation='radial',
         marker=dict(colors=colors)  # Применяем те же цвета
     ))
-    fig_pie_ras.update_layout(margin=dict(t=0, l=0, r=0, b=0))
+    fig_pie_ras.update_layout(
+        margin=dict(t=0, l=0, r=0, b=0),
+        title={
+        'text': "Удельный вес расходов",
+        'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
+        'x': 0,  # Устанавливаем позицию заголовка по горизонтали
+        'yanchor': 'top'
+        }
+    )
     
     # Создание диаграмм Sunburst для доходов
     fig_pie_pos = go.Figure(go.Sunburst(
@@ -255,7 +310,16 @@ def create_figures(df_filtered):
         insidetextorientation='radial',
         marker=dict(colors=colors_2)  # Применяем те же цвета
     ))
-    fig_pie_pos.update_layout(margin=dict(t=0, l=0, r=0, b=0))
+    # Устанавливаем размеры диаграммы
+    fig_pie_pos.update_layout(
+        margin=dict(t=0, l=0, r=0, b=0),
+        title={
+        'text': "Удельный вес доходов",
+        'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
+        'x': 0,  # Устанавливаем позицию заголовка по горизонтали
+        'yanchor': 'top'
+    }
+    )
 
     # Создание графика числа покупателей
     fig_customers = go.Figure()

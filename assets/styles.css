@@ -1,6 +1,9 @@
 body {
-    font-family:  Arial, Helvetica, sans-serif;
-    width:auto;
+    font-family: Arial, Helvetica, sans-serif;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    display: grid;
 }
 
 .navbar-vertical {
@@ -12,19 +15,6 @@ body {
     overflow: hidden;  /* Скрытие переполненного содержимого */
     white-space: nowrap;  /* Отключение переноса текста */
     border-radius: 15px;
-}
-
-H1 {
-    flex-shrink: 1; /* Позволяет заголовку сжиматься */
-    margin-left: 30%;
-    font-size: min(5vw, 1rem); /* Ширина в процентах или максимальный размер шрифта */
-    overflow: hidden; /* Прятать переполняющий текст */
-}
-
-.container {
-    padding: 0 20px;
-    box-sizing: border-box;
-    text-align: center;
 }
 
 .navbar-vertical .nav-link {
@@ -46,41 +36,6 @@ H1 {
 .navbar-vertical .nav-link i {
     margin-right: 10px;
     font-size: 20px;
-}
-
-.card-header {
-    background-color: #f8f9fa;
-    font-weight: bold;
-}
-
-.card {
-    margin-bottom: 20px;
-}
-
-.container-fluid {
-    margin-top: 20px;
-    transition: margin-left 0.5s ease-in-out;
-    width: auto;
-}
-
-.page-transition {
-    transition: opacity 0.5s ease-in-out;
-}
-
-.page-enter {
-    opacity: 0;
-}
-
-.page-enter-active {
-    opacity: 1;
-}
-
-.page-leave {
-    opacity: 1;
-}
-
-.page-leave-active {
-    opacity: 0;
 }
 
 /* Медиа-запросы для адаптации текста в навбаре */
@@ -119,74 +74,136 @@ H1 {
         font-size: 12px;
     }
 }
-/* Основной контейнер для графиков в report2 */
-.graph-container {
-    display: flex;  /* Использование Flexbox */
-    justify-content: space-between;  /* Распределение графиков с равными промежутками */
-    gap: 20px;  /* Расстояние между графиками */
-    margin: 20px auto;  /* Отступы сверху и снизу, авто-отступы по бокам */
-    width: 100%;  /* Ширина контейнера на всю доступную ширину */
-    max-width: 100%;  /* Максимальная ширина контейнера на всю доступную ширину */
-    padding: 20px;  /* Отступы внутри контейнера */
-    border-radius: 15px;  /* Скругленные углы */
-    background-color: #ffffff;  /* Светлый фон для контейнера */    
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Тень для создания эффекта поднятого элемента */
+.parent {
+    /* border: 2px solid #f76707; */
+    border-radius: 5px;
+    /* background-color: #fff4e6; */
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
 }
-
-/* Контейнер для вертикального размещения графиков в report1 */
-.graph-container-vertical {
-    display: flex;  /* Использование Flexbox */
-    flex-direction: column;  /* Вертикальное размещение графиков */
-    gap: 20px;  /* Расстояние между графиками */
-    margin: 20px auto;  /* Отступы сверху и снизу, авто-отступы по бокам */
-    width: 100% auto;  /* Ширина контейнера на всю доступную ширину */
-    max-width: 100%;  /* Максимальная ширина контейнера на всю доступную ширину */
-    padding: 20px;  /* Отступы внутри контейнера */
-    border-radius: 15px;  /* Скругленные углы */
-    background-color: #f8f9fa;  /* Светлый фон для контейнера */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Тень для создания эффекта поднятого элемента */
-    height: 750px; 
+.child1 {
+    grid-column-start: 1;
+    grid-column-end: 1;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* background-color: #9ce210; */
 }
-
-/* Стили для графиков внутри контейнера */
-.dcc-graph {
-    flex: 1;  /* Графики занимают доступное пространство */
-    border-radius: 10px;  /* Скругленные углы графиков */
-    background-color: #ffffff;  /* Белый фон для графиков */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  /* Легкая тень вокруг графиков */
-    margin: 0;  /* Убедитесь, что у графиков нет внешних отступов */
-    height: 750px;  /* Задайте фиксированную высоту, если графики по-прежнему слишком маленькие */
-    border-radius: 15px;
+.child2 {
+    grid-column-start: 2;
+    grid-column-end: 7;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* background-color: #e2bb10; */
 }
-/* Style for dropdowns */
-.dcc-dropdown {
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 12px;
-    text-align: left;
-    width: 170px; 
+.dropdown {
+    grid-column-start: 1;
+    grid-column-end: 1;
+    grid-row-start: 2;
+    grid-row-end: 3;
+    display: grid;
+    grid-template-rows: repeat(4, auto); /* Или укажите конкретные значения */
+    gap: 0; /* Или укажите минимальное значение, если нужно */
+    /* background-color: #10e21e; Включите, если требуется */
 }
-
-/* Style the dropdown options */
-.dcc-dropdown .Select-control {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: none;
-    font-size: 12px;
-    text-align: left; 
-    /* white-space: nowrap; 
-    overflow: scroll; 
-    text-overflow: ellipsis;  */
+.dropdown-item {
+    padding: 0; /* Уберите отступы, если они вызывают разрывы */
+    margin: 0; /* Уберите маргины, если они вызывают разрывы */
 }
-
-.dcc-dropdown .Select-menu {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 12px; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-    text-align: left;
-    /* white-space: nowrap; 
-    overflow: scroll; 
-    text-overflow: ellipsis;  */
+.H3-grid{
+    grid-column-start: 1;
+    grid-column-end: 8;
+    grid-row-start: 1;
+    grid-row-end: 1;
+    /* background-color: #10c2e2; */
+}
+.box1{
+    grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    /* background-color: #141514; */
+    padding-left: 0px;
+    padding-right: 0px;
+}
+.graph-prof{
+    grid-column-start: 2;
+    grid-column-end: 8;
+    grid-row-start: 2;
+    grid-row-end: 2;
+    /* display: grid; */
+    /* grid-template-columns: repeat(3, 1fr); */
+    /* background-color: #10e2d4; */
+}
+.income-graphs{
+    grid-column-start: 2;
+    grid-column-end: 8;
+    grid-row-start: 3;
+    grid-row-end: 3;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* background-color: #e2bb10;     */
+}
+.expence-graphs{
+    grid-column-start: 2;
+    grid-column-end: 8;
+    grid-row-start: 4;
+    grid-row-end: 4;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* background-color: #e2bb10;     */
+}
+.child-income1{
+    grid-column-start: 2;
+    grid-column-end: 5;
+    grid-row-start: 4;
+    grid-row-end: 4;
+    /* display: grid; */
+    /* grid-template-columns: repeat(2, 1fr);  */
+    /* background-color: #f33f09; */
+    min-width: 0; 
+    min-height: 0;  
+    overflow: hidden;   
+}
+.child-income2{
+    grid-column-start: 2;
+    grid-column-end: 5;
+    grid-row-start: 3;
+    grid-row-end: 3;
+    /* display: grid; */
+    /* grid-template-columns: repeat(2, 1fr);  */
+    /* background-color: #f35f09;   */
+    min-width: 0; 
+    min-height: 0;  
+    overflow: hidden;   
+}
+.child-expence1{
+    grid-column-start: 5;
+    grid-column-end: 8;
+    grid-row-start: 4;
+    grid-row-end: 4;
+    /* display: grid; */
+    /* background-color: #9909f3;   */
+    min-width: 0; 
+    min-height: 0;   
+    overflow: hidden;   
+}
+.child-expence2{
+    grid-column-start: 5;
+    grid-column-end: 8;
+    grid-row-start: 3;
+    grid-row-end: 3;
+    /* display: grid; */
+    /* background-color: #f30992;   */
+    min-width: 0; 
+    min-height: 0;   
+    overflow:initial;   
+}
+* {
+    box-sizing: border-box;
 }

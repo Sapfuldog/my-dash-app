@@ -1,7 +1,13 @@
 from dash import dcc, html, Input, Output, State
 import data
 from figures import create_figures
+import dash_bootstrap_components as dbc
 import pandas as pd
+
+def clean_value(value):
+    if isinstance(value, str):
+        return value.strip()
+    return str(value)
 
 def register_callbacks(app):
     @app.callback(Output('page-content', 'children'),
@@ -10,11 +16,6 @@ def register_callbacks(app):
         df, df_A, df_M = data.get_data()
         fig_profit, fig_incomes, fig_expenses, fig_customers, fig_pie_ras, fig_pie_pos = create_figures(df)
         df_cur, df_fut = data.get_data_cur_fut()
-        
-        def clean_value(value):
-            if isinstance(value, str):
-                return value.strip()
-            return str(value)
 
         account_options = [{'label': clean_value(account), 'value': clean_value(account)} for account in df_fut['Банковский счет'].unique()]
         bank_options = [{'label': clean_value(bank), 'value': clean_value(bank)} for bank in df_fut['Банк'].unique()]
@@ -22,60 +23,51 @@ def register_callbacks(app):
         dir_options = [{'label': clean_value(d), 'value': clean_value(d)} for d in df_fut['Направление деятельности'].unique()]
 
         if pathname == '/report1':
-            return html.Div([
-                html.H3('Остатки на расчетных счетах'),
-                html.Div([
-                    html.Div([
+            return html.Div([html.Div(html.H3('Остатки на расчетных счетах'), className = 'H3-grid'),
+            html.Div([
                         dcc.Dropdown(
                             id='account-filter',
                             options=account_options,
-                            value=[],  
+                            value=[],
                             multi=True,
                             placeholder='Выберите банковский счет',
-                            className='dcc-dropdown',  
+                            className='dropdown-item',
                             optionHeight=120
                         ),
                         dcc.Dropdown(
                             id='bank-filter',
                             options=bank_options,
-                            value=[],  
+                            value=[],
                             multi=True,
                             placeholder='Выберите банк',
-                            className='dcc-dropdown',  
+                            className='dropdown-item',
                             optionHeight=120
                         ),
                         dcc.Dropdown(
                             id='st-filter',
                             options=st_options,
-                            value=[],  
+                            value=[],
                             multi=True,
                             placeholder='Какие статьи не учитывать',
-                            className='dcc-dropdown',  
+                            className='dropdown-item',
                             optionHeight=120
                         ),
                         dcc.Dropdown(
                             id='d-filter',
                             options=dir_options,
-                            value=[],  
+                            value=[],
                             multi=True,
                             placeholder='Выберите направление',
-                            className='dcc-dropdown',  
+                            className='dropdown-item',
                             optionHeight=60
                         )
-                    ], className='graph-container-vertical'),
-                    dcc.Graph(id='profit-graph', figure=fig_profit, className='dcc-graph')
-                ], className='graph-container'),
-                html.Div([
-                        html.Div([
-                            dcc.Graph(id='incomes-graph', figure=fig_incomes, className='dcc-graph'),
-                            dcc.Graph(id='expenses-graph', figure=fig_expenses, className='dcc-graph')
-                            ], className='graph-container-col'),
-                        html.Div([
-                            dcc.Graph(id='pie-income-graph', figure=fig_pie_pos, className='dcc-graph'),
-                            dcc.Graph(id='pie-expenses-graph', figure=fig_pie_ras, className='dcc-graph')
-                            ], className='graph-container-col')
-                ], className='graph-container')
-            ], className='container')
+                    ], className='dropdown'),
+            html.Div([dcc.Graph(id='profit-graph', figure=fig_profit)], className = 'graph-prof'),
+            dcc.Graph(id='incomes-graph', figure=fig_incomes, className = 'child-income1'),
+            dcc.Graph(id='pie-income-graph', figure=fig_pie_pos, className = 'child-income2'),
+            dcc.Graph(id='expenses-graph', figure=fig_expenses, className = 'child-expence1'),
+            dcc.Graph(id='pie-expenses-graph', figure=fig_pie_ras, className = 'child-expence2')
+            ], className = 'box1')
         elif pathname == '/report2':
             return html.Div([
                 html.H3('Анализ продаж')
@@ -84,7 +76,11 @@ def register_callbacks(app):
             return html.Div([
                 html.H3('Расчеты с покупателями и поставщиками'),
                 html.Div([
-                    dcc.Graph(id='customers-graph', figure=fig_customers)
+                    dcc.Loading(
+                        id="loading-customers",
+                        type="circle",
+                        children=dcc.Graph(id='customers-graph', figure=fig_customers)
+                    )
                 ], className='graph-container-vertical')
             ], className='container')
         else:
@@ -129,7 +125,8 @@ def register_callbacks(app):
 
             last_row = df_f.tail(1)
             last_row.loc[:, 'Сумма'] = last_row['Накопительно']
-            
+            last_row.loc[:, 'Статья учета'] = "Остаток на р/с"
+
             df = df[(df['Дата'] >= start_date) & (df['Дата'] <= end_date)]
             
             df = pd.concat([last_row, df], ignore_index=True)
@@ -150,11 +147,6 @@ def register_callbacks(app):
             df = pd.concat([df_cur, df_fut], ignore_index=True)
             filtered_df = df 
         
-        def clean_value(value):
-            if isinstance(value, str):
-                return value.strip()
-            return str(value)
-        
         account_options = [{'label': clean_value(account), 'value': clean_value(account)} for account in filtered_df['Банковский счет'].unique()]
         
         return account_options
@@ -171,11 +163,6 @@ def register_callbacks(app):
         else:
             df = pd.concat([df_cur, df_fut], ignore_index=True)    
             filtered_df = df
-        
-        def clean_value(value):
-            if isinstance(value, str):
-                return value.strip()
-            return str(value)
         
         bank_options = [{'label': clean_value(bank), 'value': clean_value(bank)} for bank in filtered_df['Банк'].unique()]
         
