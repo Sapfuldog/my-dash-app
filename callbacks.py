@@ -31,10 +31,8 @@ def register_callbacks(app):
 
         if pathname == '/report1':
             return dbc.Tabs([
-                dbc.Tab(
-                    label="Динамика остатков и структура доходов/расходов",
-                    tab_id="tab-1",
-                    children=html.Div([
+                dbc.Tab([
+                    html.Div([
                         #html.Div(html.H3('Остатки на расчетных счетах'), className='H3-grid'),
                         html.Div([
                             html.Div(html.H4('Фильтры'), className='H4-grid'),
@@ -81,8 +79,11 @@ def register_callbacks(app):
                         dcc.Graph(id='expenses-graph', figure=fig_expenses, className='child-expence1'),
                         dcc.Graph(id='pie-expenses-graph', figure=fig_pie_ras, className='child-expence2')
                     ], className='box2')
-                )
-            ], id='tabs', active_tab='tab-1',className='box1')
+                ],                     
+                    label="Динамика остатков и структура доходов/расходов",
+                    tab_id="tab-1",
+                    className='box-tab')
+            ], id='tabs', active_tab='tab-1',className='box-tabs')
         elif pathname == '/report2':
             return html.Div([
                 html.H3('Анализ продаж')

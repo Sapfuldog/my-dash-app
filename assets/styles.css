@@ -4,14 +4,30 @@ body {
     margin: 0;
     padding: 0;
     display: grid;
+    height: 100vh;
+    position: relative;
 }
+
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(122, 122, 251, 0.696), white); 
+    z-index: -1;
+}
+
+
 
 .navbar-vertical {
     background-color: #eff7f200;
     padding: 0 20px;
     margin-left: 0;
+    margin-right: 0;
     position: flex;
-    width: 220px;  /* Фиксированная ширина навбара */
+    width: auto;  /* Фиксированная ширина навбара */
     overflow: hidden;  /* Скрытие переполненного содержимого */
     white-space: wrap;  /* Отключение переноса текста */
     border-radius: 15px;
@@ -20,7 +36,7 @@ body {
 .navbar-vertical .nav-link {
     color: #000;
     font-size: 16px;
-    padding: 10px 0;
+    padding: 10px;
     display: flex;  /* Изменение на block для переносов */
     white-space: wrap;  /* Включение переноса текста */
     overflow: hidden;
@@ -29,9 +45,10 @@ body {
 }
 
 .navbar-vertical .nav-link:hover {
-    background-color: #d9f0e6;
+    background-color: #96e5f1;
     border-radius: 5px;
     white-space: wrap;
+    transition: ease-in-out;
 }
 
 .navbar-vertical .nav-link i {
@@ -88,8 +105,10 @@ body {
     grid-row-start: 1;
     grid-row-end: 3;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+
     /* background-color: #9ce210; */
+    padding-right: 0px;
+    margin-right: 0px;
 }
 .child2 {
     grid-column-start: 2;
@@ -153,17 +172,48 @@ body {
     padding-left: 0px;
     padding-right: 0px;
 }
+.box-tab{
+    grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* background-color: #141514; */
+    padding-left: 0px;
+    padding-right: 0px;
+    box-shadow: 0 4px 10px 5px rgba(0, 0, 0, 0.2);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.box-tabs .active {
+    /* Стиль для активной вкладки */
+    background: #007bff;
+    color: white;
+    font-weight: bold;
+    z-index: 1;
+    position: relative;
+}
+
+
 .tab-content {
     grid-column-start: 1;
     grid-column-end: 8;
     grid-row-start: 3;
     grid-row-end: 3;
-    border: 2px #5f5c5c; /* Установка границы */
+    border-bottom: 2px #5f5c5c; /* Установка границы */
+    border-left: 2px #5f5c5c;
+    border-right: 2px #5f5c5c;
     border-bottom-left-radius: 25px; /* Скругление нижнего левого угла */
     border-bottom-right-radius: 25px; /* Скругление нижнего правого угла */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Установка тени */
+    box-shadow: 0 4px 10px 5px rgba(0, 0, 0, 0.2);
     padding-left: 25px;
     padding-right: 25px;
+    background: #ffff;
+}
+.box-tab{
+    box-shadow: none;    
 }
 .box2 {
     grid-column-start: 1;
@@ -175,7 +225,7 @@ body {
     /* background-color: #141514; */
     padding-left: 0px;
     padding-right: 0px;
-
+    box-shadow: none;
 }
 .graph-prof{
     grid-column-start: 2;

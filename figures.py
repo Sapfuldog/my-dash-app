@@ -23,14 +23,14 @@ def generate_gradient_color(value, min_value, max_value, income=True):
             return interpolate_color('#0000FF', '#FFFF00', norm * 2)
         else:
             # От жёлтого к зелёному
-            return interpolate_color('#FFFF00', '#00FF00', (norm - 0.5) * 2)
+            return interpolate_color('#FFFF00', '#29f340', (norm - 0.5) * 2)
     else:
         if norm < 0.5:
             # От синего к жёлтому
             return interpolate_color('#0000FF', '#FFFF00', norm * 2)
         else:
             # От жёлтого к красному
-            return interpolate_color('#FFFF00', '#FF0000', (norm - 0.5) * 2)
+            return interpolate_color('#FFFF00', '#f55846', (norm - 0.5) * 2)
 
 def SetGreenColor(y):
     start_color = (153, 255, 153)  # (99ff99)
