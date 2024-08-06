@@ -1,13 +1,20 @@
-from dash import dcc, html, Input, Output, State
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input, Output, State
+import dash_bootstrap_components as dbc
 import data
 from figures import create_figures
-import dash_bootstrap_components as dbc
 import pandas as pd
+
+
 
 def clean_value(value):
     if isinstance(value, str):
         return value.strip()
     return str(value)
+
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 def register_callbacks(app):
     @app.callback(Output('page-content', 'children'),
@@ -23,51 +30,59 @@ def register_callbacks(app):
         dir_options = [{'label': clean_value(d), 'value': clean_value(d)} for d in df_fut['Направление деятельности'].unique()]
 
         if pathname == '/report1':
-            return html.Div([html.Div(html.H3('Остатки на расчетных счетах'), className = 'H3-grid'),
-            html.Div([ html.Div(html.H4('Фильтры'),className = 'H4-grid'),
-                        dcc.Dropdown(
-                            id='account-filter',
-                            options=account_options,
-                            value=[],
-                            multi=True,
-                            placeholder='Выберите банковский счет',
-                            className='dropdown-item',
-                            optionHeight=120
-                        ),
-                        dcc.Dropdown(
-                            id='bank-filter',
-                            options=bank_options,
-                            value=[],
-                            multi=True,
-                            placeholder='Выберите банк',
-                            className='dropdown-item',
-                            optionHeight=120
-                        ),
-                        dcc.Dropdown(
-                            id='st-filter',
-                            options=st_options,
-                            value=[],
-                            multi=True,
-                            placeholder='Какие статьи не учитывать',
-                            className='dropdown-item',
-                            optionHeight=120
-                        ),
-                        dcc.Dropdown(
-                            id='d-filter',
-                            options=dir_options,
-                            value=[],
-                            multi=True,
-                            placeholder='Выберите направление',
-                            className='dropdown-item',
-                            optionHeight=60
-                        )
-                    ], className='dropdown'),
-            html.Div([dcc.Graph(id='profit-graph', figure=fig_profit)], className = 'graph-prof'),
-            dcc.Graph(id='incomes-graph', figure=fig_incomes, className = 'child-income1'),
-            dcc.Graph(id='pie-income-graph', figure=fig_pie_pos, className = 'child-income2'),
-            dcc.Graph(id='expenses-graph', figure=fig_expenses, className = 'child-expence1'),
-            dcc.Graph(id='pie-expenses-graph', figure=fig_pie_ras, className = 'child-expence2')
-            ], className = 'box1')
+            return dbc.Tabs([
+                dbc.Tab(
+                    label="Динамика остатков и структура доходов/расходов",
+                    tab_id="tab-1",
+                    children=html.Div([
+                        #html.Div(html.H3('Остатки на расчетных счетах'), className='H3-grid'),
+                        html.Div([
+                            html.Div(html.H4('Фильтры'), className='H4-grid'),
+                            dcc.Dropdown(
+                                id='account-filter',
+                                options=account_options,
+                                value=[],
+                                multi=True,
+                                placeholder='Выберите банковский счет',
+                                className='dropdown-item',
+                                optionHeight=120
+                            ),
+                            dcc.Dropdown(
+                                id='bank-filter',
+                                options=bank_options,
+                                value=[],
+                                multi=True,
+                                placeholder='Выберите банк',
+                                className='dropdown-item',
+                                optionHeight=120
+                            ),
+                            dcc.Dropdown(
+                                id='st-filter',
+                                options=st_options,
+                                value=[],
+                                multi=True,
+                                placeholder='Какие статьи не учитывать',
+                                className='dropdown-item',
+                                optionHeight=120
+                            ),
+                            dcc.Dropdown(
+                                id='d-filter',
+                                options=dir_options,
+                                value=[],
+                                multi=True,
+                                placeholder='Выберите направление',
+                                className='dropdown-item',
+                                optionHeight=60
+                            )
+                        ], className='dropdown'),
+                        html.Div([dcc.Graph(id='profit-graph', figure=fig_profit)], className='graph-prof'),
+                        dcc.Graph(id='incomes-graph', figure=fig_incomes, className='child-income1'),
+                        dcc.Graph(id='pie-income-graph', figure=fig_pie_pos, className='child-income2'),
+                        dcc.Graph(id='expenses-graph', figure=fig_expenses, className='child-expence1'),
+                        dcc.Graph(id='pie-expenses-graph', figure=fig_pie_ras, className='child-expence2')
+                    ], className='box2')
+                )
+            ], id='tabs', active_tab='tab-1',className='box1')
         elif pathname == '/report2':
             return html.Div([
                 html.H3('Анализ продаж')
@@ -167,3 +182,4 @@ def register_callbacks(app):
         bank_options = [{'label': clean_value(bank), 'value': clean_value(bank)} for bank in filtered_df['Банк'].unique()]
         
         return bank_options
+

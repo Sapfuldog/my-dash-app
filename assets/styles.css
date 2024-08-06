@@ -76,7 +76,7 @@ body {
     }
 }
 .parent {
-    margin: 10px;
+    padding: 10px;
     border-radius: 5px;
     /* background-color: #04e23f;  */
     display: grid;
@@ -107,6 +107,9 @@ body {
     text-align: left;
     width: 170px; 
     padding-top: 28px;
+    grid-row-start: 2;
+    grid-row-end: 3;
+    padding-right: 10px;
 }
 
 /* Style the dropdown options */
@@ -150,14 +153,36 @@ body {
     padding-left: 0px;
     padding-right: 0px;
 }
+.tab-content {
+    grid-column-start: 1;
+    grid-column-end: 8;
+    grid-row-start: 3;
+    grid-row-end: 3;
+    border: 2px #5f5c5c; /* Установка границы */
+    border-bottom-left-radius: 25px; /* Скругление нижнего левого угла */
+    border-bottom-right-radius: 25px; /* Скругление нижнего правого угла */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Установка тени */
+    padding-left: 25px;
+    padding-right: 25px;
+}
+.box2 {
+    grid-column-start: 1;
+    grid-column-end: 8;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    /* background-color: #141514; */
+    padding-left: 0px;
+    padding-right: 0px;
+
+}
 .graph-prof{
     grid-column-start: 2;
     grid-column-end: 8;
     grid-row-start: 2;
     grid-row-end: 2;
-    /* display: grid; */
-    /* grid-template-columns: repeat(3, 1fr); */
-    /* background-color: #10e2d4; */
+
 }
 .income-graphs{
     grid-column-start: 2;
@@ -176,53 +201,49 @@ body {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     /* background-color: #e2bb10;     */
+
 }
 .child-income1{
     grid-column-start: 2;
     grid-column-end: 5;
     grid-row-start: 4;
     grid-row-end: 4;
-    /* display: grid; */
-    /* grid-template-columns: repeat(2, 1fr);  */
-    /* background-color: #f33f09; */
     min-width: 0; 
     min-height: 0;  
     overflow: hidden;   
+    min-height: 80px;
 }
 .child-income2{
     grid-column-start: 2;
     grid-column-end: 5;
     grid-row-start: 3;
     grid-row-end: 3;
-    /* display: grid; */
-    /* grid-template-columns: repeat(2, 1fr);  */
-    /* background-color: #f35f09;   */
     min-width: 0; 
     min-height: 0;  
-    overflow: hidden;   
+    overflow: hidden;  
+    min-height: 580px; 
 }
 .child-expence1{
     grid-column-start: 5;
     grid-column-end: 8;
     grid-row-start: 4;
     grid-row-end: 4;
-    /* display: grid; */
-    /* background-color: #9909f3;   */
     min-width: 0; 
     min-height: 0;   
     overflow: hidden;   
+    min-height: 580px;
 }
 .child-expence2{
     grid-column-start: 5;
     grid-column-end: 8;
     grid-row-start: 3;
     grid-row-end: 3;
-    /* display: grid; */
-    /* background-color: #f30992;   */
     min-width: 0; 
     min-height: 0;   
     overflow:initial;   
+    min-height: 580px;
 }
 * {
     box-sizing: border-box;
 }
+
