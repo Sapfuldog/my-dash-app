@@ -2,35 +2,40 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import pandas as pd
 import plotly.express as px
+import numpy as np
 from datetime import datetime, date
 import random
 from matplotlib import colors as mcolors
 
 def interpolate_color(start_color, end_color, factor):
-    """Интерполирует цвет от start_color к end_color на основе фактора"""
+    """Интерполирует цвет от start_color к end_color на основе фактора."""
     start_rgb = mcolors.hex2color(start_color)
     end_rgb = mcolors.hex2color(end_color)
     interpolated_rgb = [start + (end - start) * factor for start, end in zip(start_rgb, end_rgb)]
     return mcolors.to_hex(interpolated_rgb)
 
 def generate_gradient_color(value, min_value, max_value, income=True):
+    """Генерирует цвет на основе градиента для заданного значения."""
     # Нормализация значения
-    norm = (value - min_value) / (max_value - min_value)
-    
-    if income:
-        if norm < 0.5:
-            # От синего к жёлтому
-            return interpolate_color('#0000FF', '#FFFF00', norm * 2)
-        else:
-            # От жёлтого к зелёному
-            return interpolate_color('#FFFF00', '#29f340', (norm - 0.5) * 2)
+    if max_value == min_value:
+        norm = 1  # Нормализация на случай, если все значения одинаковы
     else:
-        if norm < 0.5:
-            # От синего к жёлтому
-            return interpolate_color('#0000FF', '#FFFF00', norm * 2)
-        else:
-            # От жёлтого к красному
-            return interpolate_color('#FFFF00', '#f55846', (norm - 0.5) * 2)
+        norm = (value - min_value) / (max_value - min_value)
+
+    # Обработка граничных условий
+    if np.isnan(norm):
+        norm = 1 if income else 0
+    norm = np.clip(norm, 0, 1)
+
+    if value == max_value:
+        return '#29f340' if income else '#ff0000'  # Зеленый или Красный цвет на границе
+
+    if income:
+        # Градиент от синего к зеленому
+        return interpolate_color('#0000ff', '#29f340', norm)
+    else:
+        # Градиент от фиолетового к красному
+        return interpolate_color('#800080', '#ff0000', norm)
 
 def SetGreenColor(y):
     start_color = (153, 255, 153)  # (99ff99)
@@ -98,7 +103,7 @@ def create_figures(df_filtered):
         vertical_spacing=0.02, 
         horizontal_spacing=0.01,
         row_heights=[0.7, 0.7, 4.7],  # Устанавливаем высоту строк
-        column_widths=[0.7, 0.02],  # Устанавливаем ширину колонок
+        column_widths=[0.7, 0.07],  # Устанавливаем ширину колонок
         specs=[[{"type": "bar"}, {"type": "scatter"}],
                [{"type": "bar"}, {"type": "histogram"}],
                [{"type": "scatter"}, {"type": "histogram"}]]
@@ -130,7 +135,7 @@ def create_figures(df_filtered):
             x=df_filtered_by_date['Дата'],
             y=df_filtered_by_date['Накопительно'], 
             showlegend=False,
-            line=dict(color='blue'),
+            line=dict(color='#0015ff'),
             connectgaps=True
         ),
         row=3, col=1
@@ -140,7 +145,7 @@ def create_figures(df_filtered):
             x=df_filtered_by_date_undo['Дата'],
             y=df_filtered_by_date_undo['Накопительно'], 
             showlegend=False,
-            line=dict(color='#04adef'),
+            line=dict(color='#00fffb'),
             connectgaps=True
         ),
         row=3, col=1
@@ -159,31 +164,34 @@ def create_figures(df_filtered):
     # Обновление макета для fig_profit
     fig_profit.update_layout(
         title={
-        'text': "Динамика остатков на расчетных счетах (факт/план)",
-        'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
-        'x': 0,  # Устанавливаем позицию заголовка по горизонтали
+        'font': {
+            'size': 17,  # Размер шрифта
+            'family': 'Open Sans'  # Семейство шрифта
+        },
         'yanchor': 'top'
         },
-        xaxis=dict(title=''),
-        yaxis=dict(title=''),
-        xaxis2=dict(title=''),
-        yaxis2=dict(title=''),
-        xaxis3=dict(title=''),
-        yaxis3=dict(title=''),
-        xaxis4=dict(title=''),
-        yaxis4=dict(title=''),
-        xaxis5=dict(title='Дата'),
-        yaxis5=dict(title=''),
-        xaxis6=dict(title=''),
-        yaxis6=dict(title='')
+        xaxis=dict(title='',gridcolor='rgba(128,128,128,0.2)'),
+        yaxis=dict(title='',gridcolor='rgba(128,128,128,0.2)'),
+        xaxis2=dict(title='',gridcolor='rgba(128,128,128,0.2)'),
+        yaxis2=dict(title='',gridcolor='rgba(128,128,128,0.2)'),
+        xaxis3=dict(title='',gridcolor='rgba(128,128,128,0.2)'),
+        yaxis3=dict(title='',gridcolor='rgba(128,128,128,0.2)'),
+        xaxis4=dict(title='',gridcolor='rgba(128,128,128,0.2)'),
+        yaxis4=dict(title='',gridcolor='rgba(128,128,128,0.2)'),
+        xaxis5=dict(title='Дата',gridcolor='rgba(128,128,128,0.2)'),
+        yaxis5=dict(title='',gridcolor='rgba(128,128,128,0.2)'),
+        xaxis6=dict(title='',gridcolor='rgba(128,128,128,0.2)'),
+        yaxis6=dict(title='',gridcolor='rgba(128,128,128,0.2)'),
+        plot_bgcolor='rgba(0,0,0,0)',  # Прозрачный фон графика
+        paper_bgcolor='rgba(0,0,0,0)'
     )
 
     fig_profit.update_xaxes(matches='x')
-    fig_profit.update_xaxes(tickfont=dict(size=1), row=3, col=2)
+    fig_profit.update_xaxes(tickfont=dict(size=8), row=3, col=2)
     fig_profit.update_yaxes(
         type='log',
         range=[4, 10],
-        tickfont=dict(size=6),
+        tickfont=dict(size=8),
         #tickvals=[1e4, 1e5, 1e6, 1e8, 1e9],  # Установка шагов на оси
         #ticktext=['10k', '100k', '1M', '100M', '1B'],  # Отображаемые значения
         row=1, col=1
@@ -191,7 +199,7 @@ def create_figures(df_filtered):
     fig_profit.update_yaxes(
         type='log',
         range=[4, 10],
-        tickfont=dict(size=6),
+        tickfont=dict(size=8),
         #tickvals=[1e4, 1e5, 1e6, 1e8, 1e9],  # Установка одинаковых шагов на оси
         #ticktext=['10k', '100k', '1M', '100M', '1B'],  # Отображаемые значения
         autorange='reversed',
@@ -231,15 +239,21 @@ def create_figures(df_filtered):
         labels=expenses_labels,
         parents=expenses_parents,
         values=expenses_values,
-        marker=dict(colors=colors)
+        marker=dict(
+            colorscale="Sunsetdark",
+            #colors=colors,
+            line=dict(color='rgba(128,128,128,0.5)')
+            )
     ))
     fig_expenses.update_layout(
-                title={
-        'text': "Структура расходов",
-        'y': 1,  # Устанавливаем позицию заголовка по вертикали
-        'x': 0,  # Устанавливаем позицию заголовка по горизонтали
+        title={
+        'font': {
+            'size': 17,  # Размер шрифта
+            'family': 'Open Sans'  # Семейство шрифта
+        },
         'yanchor': 'top'
-        })
+        },
+        paper_bgcolor='rgba(0,0,0,0)')
 
     # Подготовка данных для доходных графиков
     grouped_incomes = incomes_df.groupby('Статья учета')['Сумма'].sum().reset_index()
@@ -273,15 +287,22 @@ def create_figures(df_filtered):
         labels=incomes_labels,
         parents=incomes_parents,
         values=incomes_values,
-        marker=dict(colors=colors_2)
+        marker=dict(
+            colorscale="Tealgrn",
+            #colors=colors_2,
+            line=dict(color='rgba(128,128,128,0.5)')
+            )
     ))
     fig_incomes.update_layout(
         title={
-        'text': "Структура доходов",
-        'y': 1,  # Устанавливаем позицию заголовка по вертикали
-        'x': 0,  # Устанавливаем позицию заголовка по горизонтали
+        'font': {
+            'size': 17,  # Размер шрифта
+            'family': 'Open Sans'  # Семейство шрифта
+        },
         'yanchor': 'top'
-        })
+        },
+        paper_bgcolor='rgba(0,0,0,0)'
+        )
 
     # Создание диаграмм Sunburst для расходов
     fig_pie_ras = go.Figure(go.Sunburst(
@@ -292,17 +313,21 @@ def create_figures(df_filtered):
         hovertemplate='<b>%{label}:</b> %{value}<br>Доля: %{percentRoot:.2%}<extra></extra>',
         values=expenses_values,
         insidetextorientation='radial',
-        marker=dict(colors=colors)  # Применяем те же цвета
+        marker=dict(
+            colorscale="Sunsetdark",
+            #colors=colors,
+            line=dict(color='rgba(128,128,128,0.5)')
+            )  # Применяем те же цвета
     ))
     fig_pie_ras.update_layout(
         margin=dict(t=0, l=0, r=0, b=0),
         title={
-        'text': "Удельный вес расходов",
-        'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
-        'x': 0,  # Устанавливаем позицию заголовка по горизонтали
-        'yanchor': 'top'
-        }
-    )
+        #'text': "Удельный вес расходов",
+        #'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
+        #'x': 0,  # Устанавливаем позицию заголовка по горизонтали
+        #'yanchor': 'top'
+        },
+        paper_bgcolor='rgba(0,0,0,0)')
     
     # Создание диаграмм Sunburst для доходов
     fig_pie_pos = go.Figure(go.Sunburst(
@@ -313,18 +338,23 @@ def create_figures(df_filtered):
         hovertemplate='<b>%{label}:</b> %{value}<br>Доля: %{percentRoot:.2%}<extra></extra>',
         values=incomes_values,
         insidetextorientation='radial',
-        marker=dict(colors=colors_2)  # Применяем те же цвета
+        marker=dict(
+            colorscale="Tealgrn",
+            #colors=colors_2,
+            line=dict(color='rgba(128,128,128,0.5)')
+        )
+        # Применяем те же цвета
     ))
     # Устанавливаем размеры диаграммы
     fig_pie_pos.update_layout(
         margin=dict(t=0, l=0, r=0, b=0),
         title={
-        'text': "Удельный вес доходов",
-        'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
-        'x': 0,  # Устанавливаем позицию заголовка по горизонтали
-        'yanchor': 'top'
-    }
-    )
+        #'text': "Удельный вес доходов",
+        #'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
+        #'x': 0,  # Устанавливаем позицию заголовка по горизонтали
+        #'yanchor': 'top'
+    },
+    paper_bgcolor='rgba(0,0,0,0)')
 
     # Создание графика числа покупателей
     fig_customers = go.Figure()
