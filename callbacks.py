@@ -24,7 +24,7 @@ def register_callbacks(app):
 
         if pathname == '/report1':
             return html.Div([html.Div(html.H3('Остатки на расчетных счетах'), className = 'H3-grid'),
-            html.Div([
+            html.Div([ html.Div(html.H4('Фильтры'),className = 'H4-grid'),
                         dcc.Dropdown(
                             id='account-filter',
                             options=account_options,
