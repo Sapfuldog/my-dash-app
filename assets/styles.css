@@ -35,12 +35,13 @@ body::before {
     background-color: #ffff;
     padding: 20 20px;
     margin-left: 0;
-    margin-right: 20px;
+    /* margin-right: 20px; */
     position: flex;
     width: auto;  /* Фиксированная ширина навбара */
     overflow: hidden;  /* Скрытие переполненного содержимого */
     white-space: wrap;  /* Отключение переноса текста */
     border-radius: 5px;
+    transition: ease-in-out;
 }
 
 .navbar-vertical .nav-link {
@@ -117,18 +118,17 @@ body::before {
     grid-row-start: 1;
     grid-row-end: 3;
     display: grid;
-
+    border: 1px solid  #ffffff00;
     /* background-color: #9ce210; */
-    padding-right: 0px;
-    margin-right: 0px;
+    /* margin-right: 10px; */
 }
 .child2 {
     grid-column-start: 2;
     grid-column-end: 7;
-    grid-row-start: 1;
-    grid-row-end: 3;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    margin-left:10px;
+    border: 1px solid #ffffff00;
     /* background-color: #e2bb10; */
 }
 /* Style for dropdowns */
@@ -138,8 +138,6 @@ body::before {
     text-align: left;
     width: 170px; 
     padding-top: 28px;
-    grid-row-start: 2;
-    grid-row-end: 3;
     padding-right: 10px;
     display:flex;
     gap: 10px;
@@ -200,6 +198,7 @@ body::before {
     box-shadow: 0 4px 10px 5px rgba(0, 0, 0, 0.2);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
+
 }
 .box-tabs{
     grid-column-start: 1;
@@ -210,21 +209,55 @@ body::before {
     /* Стиль для активной вкладки */
     background: #007bff;
     color: white;
-    font-weight: bold;
-    z-index: 1;
-    position: relative;
+    /* font-weight: bold; */
+    white-space: wrap;
+    /* z-index: 1; */
 }
 .box-tabs .nav-link {
     /* Стиль для активной вкладки */
     background: #ffff;
     color: #000;
-    
+    white-space: wrap;   
 }
+.title_custom_top {
+    position: relative; /* Убедитесь, что элемент имеет позиционирование */
+    width: 100%; /* Пример размера, возможно вам понадобится адаптировать */
+    height: 100%;
+    background-image: url('screen.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 2px;
+    white-space: wrap; 
+    color: white;
+    font-weight: bold;
+    align-content: center;
+}
+
+.title_custom_top::before {
+    content:"";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5); /* Полупрозрачный фон */
+    backdrop-filter: blur(10px); /* Эффект блюра */
+    -webkit-backdrop-filter: blur(20px); /* Префикс для Webkit браузеров */
+    z-index: 1; /* Чтобы он был над фоном */
+    pointer-events: none; /* Чтобы не блокировать взаимодействие с элементом ниже */
+}
+
+.title_custom_top > * {
+    position: relative;
+    z-index: 2; /* Чтобы содержимое было поверх эффекта блюра */
+}
+
+
 
 .tab-content {
     grid-column-start: 1;
     grid-column-end: 8;
-    grid-row-start: 3;
+    grid-row-start: 2;
     grid-row-end: 3;
     border-bottom: 2px #5f5c5c; /* Установка границы */
     border-left: 2px #5f5c5c;
@@ -254,15 +287,15 @@ body::before {
 .graph-prof{
     grid-column-start: 2;
     grid-column-end: 8;
-    grid-row-start: 2;
-    grid-row-end: 2;
+    grid-row-start: 1;
+    grid-row-end: 1;
 
 }
 .income-graphs{
     grid-column-start: 2;
     grid-column-end: 8;
-    grid-row-start: 3;
-    grid-row-end: 3;
+    grid-row-start: 2;
+    grid-row-end: 2;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     /* background-color: #e2bb10;     */
@@ -270,8 +303,8 @@ body::before {
 .expence-graphs{
     grid-column-start: 2;
     grid-column-end: 8;
-    grid-row-start: 4;
-    grid-row-end: 4;
+    grid-row-start: 3;
+    grid-row-end: 3;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     /* background-color: #e2bb10;     */
@@ -280,8 +313,8 @@ body::before {
 .child-income1{
     grid-column-start: 2;
     grid-column-end: 5;
-    grid-row-start: 4;
-    grid-row-end: 4;
+    grid-row-start: 3;
+    grid-row-end: 3;
     min-width: 0; 
     min-height: 0;  
     overflow: hidden;   
@@ -289,8 +322,8 @@ body::before {
 .child-income2{
     grid-column-start: 2;
     grid-column-end: 5;
-    grid-row-start: 3;
-    grid-row-end: 3;
+    grid-row-start: 2;
+    grid-row-end: 2;
     min-width: 0; 
     min-height: 0;  
     overflow: hidden;  
@@ -299,8 +332,8 @@ body::before {
 .child-expence1{
     grid-column-start: 5;
     grid-column-end: 8;
-    grid-row-start: 4;
-    grid-row-end: 4;
+    grid-row-start: 3;
+    grid-row-end: 3;
     min-width: 0; 
     min-height: 0;   
     overflow: hidden;   
@@ -309,8 +342,8 @@ body::before {
 .child-expence2{
     grid-column-start: 5;
     grid-column-end: 8;
-    grid-row-start: 3;
-    grid-row-end: 3;
+    grid-row-start: 2;
+    grid-row-end: 2;
     min-width: 0; 
     min-height: 0;   
     overflow:hidden;   
@@ -318,20 +351,19 @@ body::before {
 }
 * {
     box-sizing: border-box;
+     /* border: 1px solid green; */ */
 }
-/* Начальный стиль для графика */
 .dash-graph {
     background-color: #ffff;
     transition: transform 0.3s ease-in-out;
-    min-height: 380px;
+    min-height: 580px;
     padding: 25px;
     /* Другие стили для графика */
 }
 .title_custom{
-    padding: 10px;
+    padding: 20px;
 }
-
-
-
-
-
+.card_top{
+    grid-row-start: 1;
+    grid-row-end: 1;
+}

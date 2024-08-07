@@ -6,6 +6,8 @@ import dash_bootstrap_components as dbc
 import data
 from figures import create_figures
 import pandas as pd
+from datetime import datetime, date
+
 
 
 
@@ -28,11 +30,21 @@ def register_callbacks(app):
         bank_options = [{'label': clean_value(bank), 'value': clean_value(bank)} for bank in df_fut['Банк'].unique()]
         st_options = [{'label': clean_value(st), 'value': clean_value(st)} for st in df_fut['Статья учета'].unique()]
         dir_options = [{'label': clean_value(d), 'value': clean_value(d)} for d in df_fut['Направление деятельности'].unique()]
-
+        lastDat = df_cur['Дата'].iloc[-1].date()
+        lastDat = lastDat.strftime('%d.%m.%Y')
+        min_date = datetime.now()
+        max_date = df['Дата'].max().date()
+        
+        
+        
         if pathname == '/report1':
             return dbc.Tabs([
                 dbc.Tab(
                     [html.Div([
+                        dbc.Card([
+                            dcc.Markdown('Текущий баланс',className='title_custom_top'),
+                            dcc.Markdown(f'последняя дата {lastDat}',className='title_custom')                            
+                    ], className='card_top')
                     ], className='box2')],                     
                     label="Текущий баланс остатков на расчетных счетах",
                     tab_id="tab-2",
@@ -42,6 +54,14 @@ def register_callbacks(app):
                         #html.Div(html.H3('Остатки на расчетных счетах'), className='H3-grid'),
                         html.Div([
                             html.Div(html.H4('Фильтры'), className='H4-grid'),
+                            dcc.DatePickerRange(
+                                id='date-picker-range',
+                                className='dropdown-item',
+                                start_date=min_date,
+                                end_date=max_date,
+                                display_format='DD.MM.YYYY',  # формат отображения даты
+                                style={'margin': '10px 0'}
+                            ),
                             dcc.Dropdown(
                                 id='account-filter',
                                 options=account_options,
@@ -79,7 +99,8 @@ def register_callbacks(app):
                                 optionHeight=60
                             )
                         ], className='dropdown'),
-                        html.Div([dcc.Graph(id='profit-graph', figure=fig_profit)], className='graph-prof'),
+                        html.Div([
+                            dcc.Graph(id='profit-graph', figure=fig_profit)], className='graph-prof'),
                         dcc.Graph(id='incomes-graph', figure=fig_incomes, className='child-income1'),
                         dcc.Graph(id='pie-income-graph', figure=fig_pie_pos, className='child-income2'),
                         dcc.Graph(id='expenses-graph', figure=fig_expenses, className='child-expence1'),
@@ -123,15 +144,18 @@ def register_callbacks(app):
          Output('pie-income-graph', 'figure'),
          Output('pie-expenses-graph', 'figure')],
         [Input('account-filter', 'value'),
-         Input('profit-graph', 'relayoutData'),
          Input('bank-filter', 'value'),
          Input('d-filter', 'value'),
-         Input('st-filter', 'value')],
-        State('profit-graph', 'figure')
+         Input('st-filter', 'value'),
+         Input('date-picker-range', 'start_date'),
+         Input('date-picker-range', 'end_date')]
     )
-    def update_graphs(selected_accounts, relayoutData, selected_banks, selected_d, selected_st, profit_figure):
+    def update_graphs(selected_accounts, selected_banks, selected_d, selected_st, start_date, end_date):
         df, df_A, df_M = data.get_data()
         df_cur, df_fut = data.get_data_cur_fut()
+        
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
                 
         if selected_st:
             df_fut = df_fut[~df_fut['Статья учета'].isin(selected_st)]
@@ -144,20 +168,7 @@ def register_callbacks(app):
         
         df = pd.concat([df_cur, df_fut], ignore_index=True)
         
-        if relayoutData and 'xaxis.range[0]' in relayoutData and 'xaxis.range[1]' in relayoutData:
-            start_date = relayoutData['xaxis.range[0]']
-            end_date = relayoutData['xaxis.range[1]']
-            
-            df_f = df[(df['Дата'] < start_date)]
-            df_f.loc[:, 'Накопительно'] = df_f['Сумма'].cumsum()
-
-            last_row = df_f.tail(1)
-            last_row.loc[:, 'Сумма'] = last_row['Накопительно']
-            last_row.loc[:, 'Статья учета'] = "Остаток на р/с"
-
-            df = df[(df['Дата'] >= start_date) & (df['Дата'] <= end_date)]
-            
-            df = pd.concat([last_row, df], ignore_index=True)
+        df = df[(df['Дата'] >= start_date) & (df['Дата'] <= end_date)]
         
         fig_profit, fig_incomes, fig_expenses, _, fig_pie_ras, fig_pie_pos = create_figures(df)
         return fig_profit, fig_incomes, fig_expenses, fig_pie_pos, fig_pie_ras

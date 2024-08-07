@@ -36,6 +36,94 @@ def generate_gradient_color(value, min_value, max_value, income=True):
     else:
         # Градиент от фиолетового к красному
         return interpolate_color('#800080', '#ff0000', norm)
+# Пользовательская палитра Teal
+teal_colorscale = [
+    (0, 'rgb(175, 238, 238)'),   # Pale Turquoise
+    (0.05, 'rgb(159, 233, 233)'),
+    (0.1, 'rgb(143, 228, 228)'),
+    (0.15, 'rgb(127, 223, 223)'),
+    (0.2, 'rgb(111, 218, 218)'),
+    (0.25, 'rgb(127, 255, 212)'), # Aquamarine
+    (0.3, 'rgb(100, 245, 201)'),
+    (0.35, 'rgb(75, 235, 190)'),
+    (0.4, 'rgb(50, 225, 179)'),
+    (0.45, 'rgb(25, 215, 168)'),
+    (0.5, 'rgb(72, 209, 204)'),  # Medium Turquoise
+    (0.55, 'rgb(45, 200, 190)'),
+    (0.6, 'rgb(20, 190, 176)'),
+    (0.65, 'rgb(0, 180, 162)'),
+    (0.7, 'rgb(0, 170, 148)'),
+    (0.75, 'rgb(32, 178, 170)'), # Light Sea Green
+    (0.8, 'rgb(20, 170, 155)'),
+    (0.85, 'rgb(10, 160, 140)'),
+    (0.9, 'rgb(0, 150, 125)'),
+    (0.95, 'rgb(0, 140, 115)'),
+    (1, 'rgb(0, 128, 128)')      # Teal
+]
+
+sunsetdark_colorscale = [
+    (0, 'rgb(255, 241, 0)'),         # Bright Yellow
+    (0.05, 'rgb(255, 232, 0)'),
+    (0.1, 'rgb(255, 222, 0)'),
+    (0.15, 'rgb(255, 212, 0)'),
+    (0.2, 'rgb(255, 202, 0)'),
+    (0.25, 'rgb(255, 82, 82)'),       # Light Coral
+    (0.3, 'rgb(255, 108, 83)'),
+    (0.35, 'rgb(255, 133, 85)'),
+    (0.4, 'rgb(255, 158, 87)'),
+    (0.45, 'rgb(255, 183, 90)'),
+    (0.5, 'rgb(255, 193, 7)'),        # Amber
+    (0.55, 'rgb(255, 206, 50)'),
+    (0.6, 'rgb(255, 219, 90)'),
+    (0.65, 'rgb(255, 232, 130)'),
+    (0.7, 'rgb(255, 245, 170)'),
+    (0.75, 'rgb(255, 152, 0)'),       # Orange
+    (0.8, 'rgb(255, 167, 38)'),
+    (0.85, 'rgb(255, 182, 76)'),
+    (0.9, 'rgb(255, 197, 115)'),
+    (0.95, 'rgb(255, 212, 154)'),
+    (1, 'rgb(255, 87, 34)')           # Deep Orange (Sunset)
+]
+
+def assign_colors(values, colorscale):
+    """
+    Назначает цвета значениям из пользовательской палитры.
+    
+    :param values: список значений
+    :param colorscale: список кортежей (порог, цвет)
+    :return: список цветов
+    """
+    # Нормализация значений в диапазон [0, 1]
+    if np.isnan(min(values)):
+        min_val = 1 
+    else:
+        min_val = min(values)
+        
+    max_val = max(values)
+    norm_values = [(val - min_val) / (max_val - min_val) for val in values]
+    
+    # Функция для интерполяции цвета
+    def interpolate_color(t, colorscale):
+        for i in range(1, len(colorscale)):
+            if t <= colorscale[i][0]:
+                t0, c0 = colorscale[i-1]
+                t1, c1 = colorscale[i]
+                ratio = (t - t0) / (t1 - t0)
+                color = tuple(
+                    int(c0[i] + ratio * (c1[i] - c0[i]))
+                    for i in range(3)
+                )
+                return f'rgb{color}'
+        return colorscale[-1][1]
+    
+    # Преобразование цветов из формата 'rgb(r, g, b)' в кортеж (r, g, b)
+    colorscale = [(t, tuple(map(int, c[4:-1].split(',')))) for t, c in colorscale]
+    
+    # Назначение цветов
+    colors = [interpolate_color(t, colorscale) for t in norm_values]
+    
+    return colors   
+    
 
 def SetGreenColor(y):
     start_color = (153, 255, 153)  # (99ff99)
@@ -207,43 +295,64 @@ def create_figures(df_filtered):
     )
 
     # Подготовка данных для расходных графиков
+    # Приведение сумм к абсолютному значению
     expenses_df['Сумма'] = expenses_df['Сумма'].abs()
+
+    # Группировка данных
     grouped_expenses = expenses_df.groupby('Статья учета')['Сумма'].sum().reset_index()
     grouped_expenses_ = expenses_df.groupby(['Статья учета', 'Контрагент'])['Сумма'].sum().reset_index()
+    grouped_expenses_d = expenses_df.groupby(['Статья учета', 'Контрагент', 'Договор'])['Сумма'].sum().reset_index()
 
-    expense_account_ids = [f"exp - {i}" for i in range(len(grouped_expenses))]
+    # Создание идентификаторов
+    expense_account_ids = [f"exp_{i+1}" for i in range(len(grouped_expenses))]
     expense_contractor_ids = [
-        f"exp - {i} - {j}"
+        f"exp_{i+1}_{j+1}"
         for i in range(len(grouped_expenses))
         for j in range(len(grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]]))
     ]
+    expense_contract_ids = [
+        f"exp_{i+1}_{j+1}_{k+1}"
+        for i in range(len(grouped_expenses))
+        for j in range(len(grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]]))
+        for k in range(len(grouped_expenses_d.loc[(grouped_expenses_d['Статья учета'] == grouped_expenses.iloc[i, 0]) & (grouped_expenses_d['Контрагент'] == grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]].iloc[j, 1])]))
+    ]
+
+    # Создание меток
     expenses_labels = (
         [f"{row['Статья учета']}<br>{row['Сумма']:,.2f}" for _, row in grouped_expenses.iterrows()] +
-        [f"{row['Контрагент']}<br>{row['Сумма']:,.2f}" for _, row in grouped_expenses_.iterrows()]
+        [f"{row['Контрагент']}<br>{row['Сумма']:,.2f}" for _, row in grouped_expenses_.iterrows()] +
+        [f"{row['Договор']}<br>{row['Сумма']:,.2f}" for _, row in grouped_expenses_d.iterrows()]
     )
+
+    # Создание родительских связей
     expenses_parents = (
         [''] * len(grouped_expenses) +
-        [f"exp - {i}" for i in range(len(grouped_expenses)) for _ in range(len(grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]]))]
+        [f"exp_{i+1}" for i in range(len(grouped_expenses)) for _ in range(len(grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]]))] +
+        [f"exp_{i+1}_{j+1}" for i in range(len(grouped_expenses)) 
+                            for j in range(len(grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]])) 
+                            for _ in range(len(grouped_expenses_d.loc[(grouped_expenses_d['Статья учета'] == grouped_expenses.iloc[i, 0]) & (grouped_expenses_d['Контрагент'] == grouped_expenses_.loc[grouped_expenses_['Статья учета'] == grouped_expenses.iloc[i, 0]].iloc[j, 1])]))]
     )
-    expenses_values = [0] * len(grouped_expenses) + list(grouped_expenses_['Сумма'])
+
+    # Создание значений
+    expenses_values = [0] * len(grouped_expenses) + [0] * len(grouped_expenses_) + list(grouped_expenses_d['Сумма'])
+    expenses_values_C = list(grouped_expenses['Сумма']) + list(grouped_expenses_['Сумма']) + list(grouped_expenses_d['Сумма'])
+    expenses_values_C = pd.DataFrame(expenses_values_C, columns=['Сумма'])
+    expenses_values_C['Цвет'] = assign_colors(expenses_values_C['Сумма'], sunsetdark_colorscale)
+    # Получение максимального и минимального значений
     max_value = grouped_expenses['Сумма'].max()
     min_value = grouped_expenses['Сумма'].min()
-    colors = [
-    generate_gradient_color(value, min_value, max_value, False)
-    for value in grouped_expenses['Сумма']
-    ]
-    
-    # Создание графиков Treemap для расходов
+
+    # Создание графика Treemap для расходов
     fig_expenses = go.Figure(go.Treemap(
-        ids=expense_account_ids + expense_contractor_ids,
+        ids=expense_account_ids + expense_contractor_ids + expense_contract_ids,
         labels=expenses_labels,
         parents=expenses_parents,
         values=expenses_values,
-        marker=dict(
-            colorscale="Sunsetdark",
-            #colors=colors,
-            line=dict(color='rgba(128,128,128,0.5)')
-            )
+        marker=dict(        
+            #colorscale="Sunsetdark",
+            colors=expenses_values_C['Цвет'],
+            line=dict(color='rgba(255,255,255,0.5)')
+        )
     ))
     fig_expenses.update_layout(
         title={
@@ -254,59 +363,74 @@ def create_figures(df_filtered):
         'yanchor': 'top'
         },
         paper_bgcolor='rgba(0,0,0,0)')
+    fig_expenses.update_traces(root=dict(color='white'))
 
     # Подготовка данных для доходных графиков
     grouped_incomes = incomes_df.groupby('Статья учета')['Сумма'].sum().reset_index()
     grouped_incomes_ = incomes_df.groupby(['Статья учета', 'Контрагент'])['Сумма'].sum().reset_index()
-
-    income_account_ids = [f"inc - {i}" for i in range(len(grouped_incomes))]
-    income_contractor_ids = [
-        f"inc - {i} - {j}"
+    grouped_incomes_d = incomes_df.groupby(['Статья учета', 'Контрагент', 'Договор'])['Сумма'].sum().reset_index()
+    
+    # Создание идентификаторов
+    incomes_account_ids = [f"exp_{i+1}" for i in range(len(grouped_incomes))]
+    incomes_contractor_ids = [
+        f"exp_{i+1}_{j+1}"
         for i in range(len(grouped_incomes))
         for j in range(len(grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]]))
     ]
+    incomes_contract_ids = [
+        f"exp_{i+1}_{j+1}_{k+1}"
+        for i in range(len(grouped_incomes))
+        for j in range(len(grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]]))
+        for k in range(len(grouped_incomes_d.loc[(grouped_incomes_d['Статья учета'] == grouped_incomes.iloc[i, 0]) & (grouped_incomes_d['Контрагент'] == grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]].iloc[j, 1])]))
+    ]
+
+    # Создание меток
     incomes_labels = (
         [f"{row['Статья учета']}<br>{row['Сумма']:,.2f}" for _, row in grouped_incomes.iterrows()] +
-        [f"{row['Контрагент']}<br>{row['Сумма']:,.2f}" for _, row in grouped_incomes_.iterrows()]
+        [f"{row['Контрагент']}<br>{row['Сумма']:,.2f}" for _, row in grouped_incomes_.iterrows()] +
+        [f"{row['Договор']}<br>{row['Сумма']:,.2f}" for _, row in grouped_incomes_d.iterrows()]
     )
+
+    # Создание родительских связей
     incomes_parents = (
         [''] * len(grouped_incomes) +
-        [f"inc - {i}" for i in range(len(grouped_incomes)) for _ in range(len(grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]]))]
+        [f"exp_{i+1}" for i in range(len(grouped_incomes)) for _ in range(len(grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]]))] +
+        [f"exp_{i+1}_{j+1}" for i in range(len(grouped_incomes)) 
+                            for j in range(len(grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]])) 
+                            for _ in range(len(grouped_incomes_d.loc[(grouped_incomes_d['Статья учета'] == grouped_incomes.iloc[i, 0]) & (grouped_incomes_d['Контрагент'] == grouped_incomes_.loc[grouped_incomes_['Статья учета'] == grouped_incomes.iloc[i, 0]].iloc[j, 1])]))]
     )
-    incomes_values = [0] * len(grouped_incomes) + list(grouped_incomes_['Сумма'])
-    max_value2 = grouped_incomes['Сумма'].max()
-    min_value2 = grouped_incomes['Сумма'].min()
-    colors_2 = [
-    generate_gradient_color(value, min_value2, max_value2, True)
-    for value in grouped_incomes['Сумма']
-    ]
-    
+
+    # Создание значений
+    incomes_values = [0] * len(grouped_incomes) + [0] * len(grouped_incomes_) + list(grouped_incomes_d['Сумма'])
+    incomes_values_C = list(grouped_incomes['Сумма']) + list(grouped_incomes_['Сумма']) + list(grouped_incomes_d['Сумма'])
+    incomes_values_C = pd.DataFrame(incomes_values_C, columns=['Сумма'])
+    incomes_values_C['Цвет'] = assign_colors(incomes_values_C['Сумма'], teal_colorscale)
     # Создание графиков Treemap для доходов
     fig_incomes = go.Figure(go.Treemap(
-        ids=income_account_ids + income_contractor_ids,
+        ids=incomes_account_ids + incomes_contractor_ids + incomes_contract_ids,
         labels=incomes_labels,
         parents=incomes_parents,
         values=incomes_values,
         marker=dict(
-            colorscale="Tealgrn",
-            #colors=colors_2,
-            line=dict(color='rgba(128,128,128,0.5)')
-            )
+            #colorscale="Teal",
+            colors=incomes_values_C['Цвет'],
+            line=dict(color='rgba(255,255,255,0.5)')
+        )
     ))
+
     fig_incomes.update_layout(
         title={
-        'font': {
-            'size': 17,  # Размер шрифта
-            'family': 'Open Sans'  # Семейство шрифта
-        },
-        'yanchor': 'top'
+            'font': {
+                'size': 17,  # Размер шрифта
+                'family': 'Open Sans'  # Семейство шрифта
+            },
+            'yanchor': 'top'
         },
         paper_bgcolor='rgba(0,0,0,0)'
-        )
-
+    )
     # Создание диаграмм Sunburst для расходов
     fig_pie_ras = go.Figure(go.Sunburst(
-        ids=expense_account_ids + expense_contractor_ids,
+        ids=expense_account_ids + expense_contractor_ids + expense_contract_ids,
         labels=expenses_labels,
         parents=expenses_parents,
         textinfo='label+percent entry',
@@ -314,9 +438,9 @@ def create_figures(df_filtered):
         values=expenses_values,
         insidetextorientation='radial',
         marker=dict(
-            colorscale="Sunsetdark",
-            #colors=colors,
-            line=dict(color='rgba(128,128,128,0.5)')
+            #colorscale="Sunsetdark",
+            colors=expenses_values_C['Цвет'],
+            line=dict(color='rgba(255,255,255,0.5)')
             )  # Применяем те же цвета
     ))
     fig_pie_ras.update_layout(
@@ -331,7 +455,7 @@ def create_figures(df_filtered):
     
     # Создание диаграмм Sunburst для доходов
     fig_pie_pos = go.Figure(go.Sunburst(
-        ids=income_account_ids + income_contractor_ids,
+        ids=incomes_account_ids + incomes_contractor_ids + incomes_contract_ids,
         labels=incomes_labels,
         parents=incomes_parents,
         textinfo='label+percent entry',
@@ -339,9 +463,9 @@ def create_figures(df_filtered):
         values=incomes_values,
         insidetextorientation='radial',
         marker=dict(
-            colorscale="Tealgrn",
-            #colors=colors_2,
-            line=dict(color='rgba(128,128,128,0.5)')
+            #colorscale="Teal",
+            colors=incomes_values_C['Цвет'],
+            line=dict(color='rgba(255,255,255,0.5)')
         )
         # Применяем те же цвета
     ))
