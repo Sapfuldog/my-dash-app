@@ -22,7 +22,7 @@ def register_callbacks(app):
     @app.callback(Output('page-content', 'children'),
                   Input('url', 'pathname'))
     def display_page(pathname):
-        df, df_A, df_M = data.get_data()
+        df = data.get_data()
         fig_profit, fig_incomes, fig_expenses, fig_customers, fig_pie_ras, fig_pie_pos = create_figures(df)
         df_cur, df_fut = data.get_data_cur_fut()
 
@@ -34,22 +34,26 @@ def register_callbacks(app):
         lastDat = lastDat.strftime('%d.%m.%Y')
         min_date = datetime.now()
         max_date = df['Дата'].max().date()
+        balance = df_cur['Накопительно'].iloc[-1]
         
         
         
         if pathname == '/report1':
-            return dbc.Tabs([
-                dbc.Tab(
+            return dcc.Loading(
+            dbc.Tabs([
+            dbc.Tab(
                     [html.Div([
                         dbc.Card([
-                            dcc.Markdown('Текущий баланс',className='title_custom_top'),
-                            dcc.Markdown(f'последняя дата {lastDat}',className='title_custom')                            
+                            html.Div([dcc.Markdown('Текущий баланс'),
+                                      dcc.Markdown(f'_на  {lastDat}_',className='grey_title')
+                                      ], className='title_custom_top'),
+                            dcc.Markdown(f'₽ {balance:,.2f}',className='title_custom')                            
                     ], className='card_top')
                     ], className='box2')],                     
                     label="Текущий баланс остатков на расчетных счетах",
                     tab_id="tab-2",
                     className='box-tab'),
-                dbc.Tab([
+            dbc.Tab([
                     html.Div([
                         #html.Div(html.H3('Остатки на расчетных счетах'), className='H3-grid'),
                         html.Div([
@@ -103,19 +107,14 @@ def register_callbacks(app):
                         dcc.Graph(id='incomes-graph', figure=fig_incomes, className='child-income1'),
                         dcc.Graph(id='pie-income-graph', figure=fig_pie_pos, className='child-income2 modified_pie'),
                         dcc.Graph(id='expenses-graph', figure=fig_expenses, className='child-expence1'),
-                        dcc.Graph(id='pie-expenses-graph', figure=fig_pie_ras, className='child-expence2 modified_pie'),
-                        dcc.Markdown('Динамика остатков на расчетных счетах (факт/план)',className='graph-prof title_custom'),
-                        dcc.Markdown('Структура доходов',className='child-income1 title_custom'),
-                        dcc.Markdown('Структура расходов',className='child-expence1 title_custom'),
-                        dcc.Markdown('Удельный вес доходов',className='child-income2 title_custom'),
-                        dcc.Markdown('Удельный вес расходов',className='child-expence2 title_custom')
+                        dcc.Graph(id='pie-expenses-graph', figure=fig_pie_ras, className='child-expence2 modified_pie')
                     ], className='box2')
                 ],                     
                     label="Динамика остатков и структура доходов/расходов",
                     tab_id="tab-1",
                     className='box-tab')
 
-            ], id='tabs', active_tab='tab-2',className='box-tabs')
+            ], id='tabs', active_tab='tab-2',className='box-tabs'))
         elif pathname == '/report2':
             return html.Div([
                 html.H3('Анализ продаж')
@@ -151,7 +150,7 @@ def register_callbacks(app):
          Input('date-picker-range', 'end_date')]
     )
     def update_graphs(selected_data, selected_accounts, selected_banks, selected_d, selected_st, start_date, end_date):
-        df, df_A, df_M = data.get_data()
+        df = data.get_data()
         df_cur, df_fut = data.get_data_cur_fut()
         
         if selected_data =='Фильтровать все значения':
@@ -189,7 +188,6 @@ def register_callbacks(app):
         Input('bank-filter', 'value')
     )
     def update_account_options(selected_banks):
-        df, _, _ = data.get_data()
         df_cur, df_fut = data.get_data_cur_fut()
         if selected_banks:
             filtered_df = df_fut[df_fut['Банк'].isin(selected_banks)]
@@ -206,7 +204,6 @@ def register_callbacks(app):
         Input('account-filter', 'value')
     )
     def update_bank_options(selected_accounts):
-        df, _, _ = data.get_data()
         df_cur, df_fut = data.get_data_cur_fut()        
         if selected_accounts:
             filtered_df = df_fut[df_fut['Банковский счет'].isin(selected_accounts)]

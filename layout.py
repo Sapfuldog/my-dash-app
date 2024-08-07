@@ -6,7 +6,7 @@ from figures import create_figures
 import pandas as pd
 
 def create_layout():
-    df, df_A, df_M = data.get_data()
+    df = data.get_data()
     df_cur, df_fut= data.get_data_cur_fut()
     df = pd.concat([df_cur, df_fut], ignore_index=True)
 
@@ -14,14 +14,6 @@ def create_layout():
                                                  dbc.Button(id='more', n_clicks=0, children='>')]),
                                 width={'size': 1, 'offset': 5}))
 
-    datatable = dag.AgGrid(id='datatable',
-                           rowData=df_A.to_dict('records'),
-                           columnDefs=[{"field": col, 'editable': True} for col in df_A.columns],
-                           dashGridOptions={"dataTypeDefinitions": {"object": {"baseDataType": "object", "extendsDataType": "object", "valueParser": {"function": "({ name: params.newValue })"}, "valueFormatter": {"function": "params.value == null ? '' : params.value.name"}}}},
-                           suppressDragLeaveHidesColumns=False,
-                           persistence=True,
-                           defaultColDef={'filter': True, 'floatingFilter': True, 'resizable': True, 'sortable': True, 'editable': False, 'minWidth': 125, 'wrapHeaderText': True, 'autoHeaderHeight': True},
-                           style={'resize': 'both', 'overflow': 'hidden', "height": 1600})
 
     return html.Div([
         dcc.Location(id='url', refresh=False),

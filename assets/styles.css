@@ -23,7 +23,7 @@ body::before {
     left: 0;
     right: 0;
     height: 50%;
-    background: linear-gradient(to bottom, rgba(122, 122, 251, 0.696), white); 
+    background: linear-gradient(to bottom, rgba(0, 154, 249, 0.696), white); 
     z-index: -1;
 }
 
@@ -302,6 +302,7 @@ body::before {
     box-shadow: none;
 }
 .graph-prof{
+
     grid-column-start: 2;
     grid-column-end: 8;
     grid-row-start: 1;
@@ -334,43 +335,46 @@ body::before {
     grid-row-end: 3;
     min-width: 0; 
     min-height: 0;  
-    overflow: hidden;   
+
 }
 .child-income2{
+
     grid-column-start: 2;
     grid-column-end: 5;
     grid-row-start: 2;
     grid-row-end: 2;
     min-width: 0; 
     min-height: 0;  
-    overflow: hidden;  
+ 
     max-width: 600px;
 
 }
 .child-expence1{
+
     grid-column-start: 5;
     grid-column-end: 8;
     grid-row-start: 3;
     grid-row-end: 3;
     min-width: 0; 
     min-height: 0;   
-    overflow: hidden;   
+ 
 
 }
 .child-expence2{
+
     grid-column-start: 5;
     grid-column-end: 8;
     grid-row-start: 2;
     grid-row-end: 2;
     min-width: 0; 
     min-height: 0;   
-    overflow:hidden;   
+  
     max-width: 600px;
 
 }
 * {
     box-sizing: border-box;
-     /* border: 1px solid green; */ */
+     /* border: 1px solid green; */
 }
 .dash-graph {
     background-color: #ffff;
@@ -382,18 +386,33 @@ body::before {
     align-items: center;     /* Выравнивание по вертикали */
    
     opacity: 0; /* Начальное состояние - невидимо */
-    transform: scale(0.1); /* Начальное состояние - уменьшено */
+    transform: scale(0.1); 
     animation: appear 0.3s ease-in-out forwards; /* Анимация появления */
 }
+.dash-graph .infolayer {
+    position: absolute; /* Абсолютное позиционирование */
+    top: 0; /* Закрепление вверху */
+    left: 0; /* Закрепление слева */
+    width: 100%; /* Ширина инфо слоя равна ширине родителя */
+    text-align: center; /* Выравнивание текста по центру (если требуется) */
+    color:#000;
+}
 
-.title_custom{
+
+.title_custom > *{
     padding: 20px;
     white-space: wrap; 
-    z-index: 1;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0px;
+    font-weight: bold;
+    font-family: "Arial"; 
 }
 .modified_pie{
-    padding-left: 15%; 
+    visibility: visible;
 }
+
+
 .card_top{
     margin-top: 20px;
     margin-bottom: 20px;
@@ -401,7 +420,7 @@ body::before {
 
 }
 .card_top:hover .title_custom_top{
-    animation: backgroundPositionAnimation 6s linear infinite;
+    animation: backgroundPositionAnimation 10s linear infinite;
 }
 
 .title_custom_top > * {
@@ -417,7 +436,6 @@ body::before {
     background-position: bottom;
     padding: 0px;
     white-space: wrap; 
-    color: white;
     box-sizing: border-box;
     font-weight: bold;
     border-top-left-radius: 10px;
@@ -426,8 +444,8 @@ body::before {
 .title_custom_top::before {
     content:"";
     position: absolute;
-    width: 100.5%;
-    height: 109%;
+    width: 100%;
+    height: 110%;
     background: rgba(255, 255, 255, 0.5); /* Полупрозрачный фон */
     backdrop-filter: blur(10px); /* Эффект блюра */
     -webkit-backdrop-filter: blur(20px); /* Префикс для Webkit браузеров */
@@ -440,6 +458,10 @@ body::before {
     width: 100%; /* Укажите ширину, которая вам нужна */
     margin: 0 auto;
     text-align: center; /* Если вы хотите также выровнять текст по центру */
+}
+.grey_title{
+    color:grey;
+    align-content: left;
 }
 /* Определяем ключевые кадры для анимации */
 @keyframes backgroundPositionAnimation {

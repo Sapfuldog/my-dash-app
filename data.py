@@ -51,9 +51,7 @@ df_count = df.groupby('Дата ')['Сумма'].count().reset_index()
 df_count.rename(columns={'Сумма': 'Количество'}, inplace=True)
 
 # Объединяем данные о суммах и количестве
-df_M = pd.merge(df_sum, df_count, on='Дата ')
-df_M['Дата '] = df_M['Дата '].dt.to_timestamp()
-df_M['Цвета'] = df_M['Сумма'].apply(lambda x: 'rgb(0,255,0)' if x >= 0 else 'rgb(255,0,0)')
+
 
 # Создаем DataFrame для таблицы
 df_A = df[['Дата', 'Контрагент', 'Сумма', 'Договор', 'Статья учета', 'Банковский счет']].drop_duplicates()
@@ -64,7 +62,7 @@ df_filtered_by_date_undo = df[(df['Дата'] < start_date)]
 
 
 def get_data():
-    return df, df_A, df_M
+    return df
 
 def get_data_cur_fut():
     return df_filtered_by_date_undo, df_filtered_by_date

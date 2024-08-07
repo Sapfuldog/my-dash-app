@@ -280,10 +280,13 @@ def create_figures(df_filtered):
     # Обновление макета для fig_profit
     fig_profit.update_layout(
         title={
+        'text':'Динамика остатков на расчетных счетах (факт/план)',
         'font': {
             'size': 17,  # Размер шрифта
             'family': 'Open Sans'  # Семейство шрифта
         },
+        # 'y': 0.9,  
+        'x': 0,
         'yanchor': 'top'
         },
         xaxis=dict(title='',gridcolor='rgba(128,128,128,0.2)'),
@@ -384,10 +387,13 @@ def create_figures(df_filtered):
     ))
     fig_expenses.update_layout(
         title={
+        'text': 'Структура расходов',
         'font': {
             'size': 17,  # Размер шрифта
             'family': 'Open Sans'  # Семейство шрифта
         },
+        # 'y': 0.9,  
+        'x': 0,
         'yanchor': 'top'
         },
         paper_bgcolor='rgba(0,0,0,0)')
@@ -448,10 +454,13 @@ def create_figures(df_filtered):
 
     fig_incomes.update_layout(
         title={
+            'text': 'Структура доходов',
             'font': {
                 'size': 17,  # Размер шрифта
                 'family': 'Open Sans'  # Семейство шрифта
             },
+            # 'y': 0.9,  
+            'x': 0,
             'yanchor': 'top'
         },
         paper_bgcolor='rgba(0,0,0,0)'
@@ -474,10 +483,14 @@ def create_figures(df_filtered):
     fig_pie_ras.update_layout(
         margin=dict(t=0, l=0, r=0, b=0),
         title={
-        #'text': "Удельный вес расходов",
-        #'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
-        #'x': 0,  # Устанавливаем позицию заголовка по горизонтали
-        #'yanchor': 'top'
+        'text': "Удельный вес расходов",
+        'font': {
+                'size': 17,  # Размер шрифта
+                'family': 'Open Sans'  # Семейство шрифта
+            },
+        # 'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
+        'x': 0,  # Устанавливаем позицию заголовка по горизонтали
+        'yanchor': 'top'
         },
         paper_bgcolor='rgba(0,0,0,0)')
     
@@ -501,10 +514,14 @@ def create_figures(df_filtered):
     fig_pie_pos.update_layout(
         margin=dict(t=0, l=0, r=0, b=0),
         title={
-        #'text': "Удельный вес доходов",
-        #'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
-        #'x': 0,  # Устанавливаем позицию заголовка по горизонтали
-        #'yanchor': 'top'
+        'text': "Удельный вес доходов",
+        'font': {
+                'size': 17,  # Размер шрифта
+                'family': 'Open Sans'  # Семейство шрифта
+            },
+        # 'y': 0.9,  # Устанавливаем позицию заголовка по вертикали
+        'x': 0,  # Устанавливаем позицию заголовка по горизонтали
+        'yanchor': 'top'
     },
     paper_bgcolor='rgba(0,0,0,0)')
 
