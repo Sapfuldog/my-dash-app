@@ -56,19 +56,21 @@ def register_callbacks(app):
                             html.Div(html.H4('Фильтры'), className='H4-grid'),
                             dcc.DatePickerRange(
                                 id='date-picker-range',
-                                className='dropdown-item',
                                 start_date=min_date,
                                 end_date=max_date,
                                 display_format='DD.MM.YYYY',  # формат отображения даты
                                 style={'margin': '10px 0'}
                             ),
                             dcc.Dropdown(
+                                id='data-filter',
+                                options=['Фильтровать все значения', 'Фильтровать плановые значения'], 
+                                value='Фильтровать все значения'),
+                            dcc.Dropdown(
                                 id='account-filter',
                                 options=account_options,
                                 value=[],
                                 multi=True,
                                 placeholder='Выберите банковский счет',
-                                className='dropdown-item',
                                 optionHeight=120
                             ),
                             dcc.Dropdown(
@@ -77,7 +79,6 @@ def register_callbacks(app):
                                 value=[],
                                 multi=True,
                                 placeholder='Выберите банк',
-                                className='dropdown-item',
                                 optionHeight=120
                             ),
                             dcc.Dropdown(
@@ -86,7 +87,6 @@ def register_callbacks(app):
                                 value=[],
                                 multi=True,
                                 placeholder='Какие статьи не учитывать',
-                                className='dropdown-item',
                                 optionHeight=120
                             ),
                             dcc.Dropdown(
@@ -95,16 +95,15 @@ def register_callbacks(app):
                                 value=[],
                                 multi=True,
                                 placeholder='Выберите направление',
-                                className='dropdown-item',
                                 optionHeight=60
                             )
                         ], className='dropdown'),
                         html.Div([
                             dcc.Graph(id='profit-graph', figure=fig_profit)], className='graph-prof'),
                         dcc.Graph(id='incomes-graph', figure=fig_incomes, className='child-income1'),
-                        dcc.Graph(id='pie-income-graph', figure=fig_pie_pos, className='child-income2'),
+                        dcc.Graph(id='pie-income-graph', figure=fig_pie_pos, className='child-income2 modified_pie'),
                         dcc.Graph(id='expenses-graph', figure=fig_expenses, className='child-expence1'),
-                        dcc.Graph(id='pie-expenses-graph', figure=fig_pie_ras, className='child-expence2'),
+                        dcc.Graph(id='pie-expenses-graph', figure=fig_pie_ras, className='child-expence2 modified_pie'),
                         dcc.Markdown('Динамика остатков на расчетных счетах (факт/план)',className='graph-prof title_custom'),
                         dcc.Markdown('Структура доходов',className='child-income1 title_custom'),
                         dcc.Markdown('Структура расходов',className='child-expence1 title_custom'),
@@ -143,19 +142,28 @@ def register_callbacks(app):
          Output('expenses-graph', 'figure'),
          Output('pie-income-graph', 'figure'),
          Output('pie-expenses-graph', 'figure')],
-        [Input('account-filter', 'value'),
+        [Input('data-filter','value'),
+         Input('account-filter', 'value'),
          Input('bank-filter', 'value'),
          Input('d-filter', 'value'),
          Input('st-filter', 'value'),
          Input('date-picker-range', 'start_date'),
          Input('date-picker-range', 'end_date')]
     )
-    def update_graphs(selected_accounts, selected_banks, selected_d, selected_st, start_date, end_date):
+    def update_graphs(selected_data, selected_accounts, selected_banks, selected_d, selected_st, start_date, end_date):
         df, df_A, df_M = data.get_data()
         df_cur, df_fut = data.get_data_cur_fut()
         
+        if selected_data =='Фильтровать все значения':
+            flag_d = True
+        else:
+            flag_d = False
+            
         start_date = pd.to_datetime(start_date)
         end_date = pd.to_datetime(end_date)
+        
+        if flag_d:
+            df_fut = df
                 
         if selected_st:
             df_fut = df_fut[~df_fut['Статья учета'].isin(selected_st)]
@@ -166,7 +174,10 @@ def register_callbacks(app):
         if selected_banks:
             df_fut = df_fut[df_fut['Банк'].isin(selected_banks)]
         
-        df = pd.concat([df_cur, df_fut], ignore_index=True)
+        if not flag_d:
+            df = pd.concat([df_cur, df_fut], ignore_index=True)
+        else:
+            df = df_fut
         
         df = df[(df['Дата'] >= start_date) & (df['Дата'] <= end_date)]
         

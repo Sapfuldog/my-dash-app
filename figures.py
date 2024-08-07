@@ -7,6 +7,33 @@ from datetime import datetime, date
 import random
 from matplotlib import colors as mcolors
 
+def wrap_text(text, max_length=20):
+    """Разбивает текст на несколько строк, если его длина превышает max_length."""
+    words = text.split(' ')
+    lines = []
+    current_line = ''
+    
+    for word in words:
+        # Если добавление слова в текущую строку превышает max_length
+        if len(current_line) + len(word) + 1 > max_length:
+            # Добавляем текущую строку в список строк и начинаем новую строку
+            lines.append(current_line)
+            current_line = word
+        else:
+            # Добавляем слово в текущую строку
+            if current_line:
+                current_line += ' '
+            current_line += word
+    
+    # Добавляем последнюю строку в список строк
+    if current_line:
+        lines.append(current_line)
+    
+    # Возвращаем строки, соединенные переносами
+    return '<br>'.join(lines)
+
+
+
 def interpolate_color(start_color, end_color, factor):
     """Интерполирует цвет от start_color к end_color на основе фактора."""
     start_rgb = mcolors.hex2color(start_color)
@@ -94,13 +121,14 @@ def assign_colors(values, colorscale):
     :return: список цветов
     """
     # Нормализация значений в диапазон [0, 1]
-    if np.isnan(min(values)):
-        min_val = 1 
-    else:
+    if not values.empty:
         min_val = min(values)
-        
-    max_val = max(values)
-    norm_values = [(val - min_val) / (max_val - min_val) for val in values]
+        max_val = max(values)
+    else:
+        min_val = 1
+        max_val = 1
+    
+    norm_values = [(val - min_val) / (max_val - min_val) if max_val != min_val else 1 for val in values]
     
     # Функция для интерполяции цвета
     def interpolate_color(t, colorscale):
@@ -319,9 +347,9 @@ def create_figures(df_filtered):
 
     # Создание меток
     expenses_labels = (
-        [f"{row['Статья учета']}<br>{row['Сумма']:,.2f}" for _, row in grouped_expenses.iterrows()] +
-        [f"{row['Контрагент']}<br>{row['Сумма']:,.2f}" for _, row in grouped_expenses_.iterrows()] +
-        [f"{row['Договор']}<br>{row['Сумма']:,.2f}" for _, row in grouped_expenses_d.iterrows()]
+        [f"{wrap_text(row['Статья учета'])}<br>{row['Сумма']:,.2f}" for _, row in grouped_expenses.iterrows()] +
+        [f"{wrap_text(row['Контрагент'])}<br>{row['Сумма']:,.2f}" for _, row in grouped_expenses_.iterrows()] +
+        [f"{wrap_text(row['Договор'])}<br>{row['Сумма']:,.2f}" for _, row in grouped_expenses_d.iterrows()]
     )
 
     # Создание родительских связей
@@ -386,9 +414,9 @@ def create_figures(df_filtered):
 
     # Создание меток
     incomes_labels = (
-        [f"{row['Статья учета']}<br>{row['Сумма']:,.2f}" for _, row in grouped_incomes.iterrows()] +
-        [f"{row['Контрагент']}<br>{row['Сумма']:,.2f}" for _, row in grouped_incomes_.iterrows()] +
-        [f"{row['Договор']}<br>{row['Сумма']:,.2f}" for _, row in grouped_incomes_d.iterrows()]
+        [f"{wrap_text(row['Статья учета'])}<br>{row['Сумма']:,.2f}" for _, row in grouped_incomes.iterrows()] +
+        [f"{wrap_text(row['Контрагент'])}<br>{row['Сумма']:,.2f}" for _, row in grouped_incomes_.iterrows()] +
+        [f"{wrap_text(row['Договор'])}<br>{row['Сумма']:,.2f}" for _, row in grouped_incomes_d.iterrows()]
     )
 
     # Создание родительских связей

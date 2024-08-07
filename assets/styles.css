@@ -29,31 +29,30 @@ body::before {
 
 .bi {
     color:rgba(122, 122, 251, 0.696);
+    margin-right: 5%;
 }
 
 .navbar-vertical {
     background-color: #ffff;
-    padding: 20 20px;
-    margin-left: 0;
-    /* margin-right: 20px; */
     position: flex;
+
     width: auto;  /* Фиксированная ширина навбара */
-    overflow: hidden;  /* Скрытие переполненного содержимого */
-    white-space: wrap;  /* Отключение переноса текста */
+    overflow: initial;  /* Скрытие переполненного содержимого */
+    white-space: wrap;  
     border-radius: 5px;
     transition: ease-in-out;
+    box-shadow: 0 4px 10px 5px rgba(0, 0, 0, 0.2);
 }
 
 .navbar-vertical .nav-link {
     color: #000;
     font-size: 16px;
-    padding: 10px;
-    margin: 5px;
+    margin: 1%;
     display: flex;  /* Изменение на block для переносов */
     white-space: wrap;  /* Включение переноса текста */
     overflow: hidden;
-    text-overflow: ellipsis;
     transition: font-size 0.3s ease-in-out;
+    align-content: center;
 }
 
 .navbar-vertical .nav-link:hover {
@@ -65,12 +64,14 @@ body::before {
 
 
 .navbar-vertical .nav-link i {
-    margin-right: 10px;
     font-size: 20px;
 }
 
 /* Медиа-запросы для адаптации текста в навбаре */
 @media (max-width: 1200px) {
+    .DateInput_input
+    .title_custom_top,
+    .title_custom,
     .navbar-vertical .nav-link {
         font-size: 14px;
     }
@@ -80,15 +81,22 @@ body::before {
 }
 
 @media (max-width: 992px) {
+    .title_custom_top,
+    .DateInput_input
+    .title_custom,
     .navbar-vertical .nav-link {
         font-size: 12px;
     }
     .navbar-vertical .nav-link i {
         font-size: 16px;
     }
+
 }
 
 @media (max-width: 768px) {
+    .DateInput_input
+    .title_custom_top,
+    .title_custom,
     .navbar-vertical .nav-link {
         font-size: 10px;
     }
@@ -98,6 +106,9 @@ body::before {
 }
 
 @media (max-width: 576px) {
+    .DateInput_input
+    .title_custom_top,
+    .title_custom,
     .navbar-vertical .nav-link {
         font-size: 8px;
     }
@@ -105,13 +116,17 @@ body::before {
         font-size: 12px;
     }
 }
-.parent {
+
+.parent_ {
     padding: 10px;
     border-radius: 5px;
     /* background-color: #04e23f;  */
     display: grid;
     grid-template-columns: repeat(6, 1fr);
+    width: 100vw;   /* Занимает всю ширину окна */
+    height: 100vh;  /* Занимает всю высоту окна */
 }
+
 .child1 {
     grid-column-start: 1;
     grid-column-end: 1;
@@ -119,16 +134,14 @@ body::before {
     grid-row-end: 3;
     display: grid;
     border: 1px solid  #ffffff00;
+
     /* background-color: #9ce210; */
-    /* margin-right: 10px; */
+    padding-right: 10%; 
 }
 .child2 {
     grid-column-start: 2;
     grid-column-end: 7;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    margin-left:10px;
-    border: 1px solid #ffffff00;
+    border: 1px solid  #ffffff00;
     /* background-color: #e2bb10; */
 }
 /* Style for dropdowns */
@@ -136,9 +149,9 @@ body::before {
     margin-bottom: 20px;
     font-size: 12px;
     text-align: left;
-    width: 170px; 
+    white-space: wrap;
     padding-top: 28px;
-    padding-right: 10px;
+    padding: 10%;
     display:flex;
     gap: 10px;
     flex-direction: column;
@@ -146,19 +159,54 @@ body::before {
 
 /* Style the dropdown options */
 .dropdown .Select-control {
-    border-radius: 4px;
+    border-radius: 10px;
+    width: 170px;
     box-shadow: none;
     font-size: 12px;
-    text-align: left; 
+    text-align: left; /* Центрирование текста */
     white-space: wrap;
+    padding: 10px; /* Добавление отступов внутри бокса */
+    height: auto;
+    width: 100%;  
+
+    display: flex; 
+    align-items: center;
+    justify-content: end;
+}
+.dropdown .Select-control .Select-placeholder,
+.dropdown .Select-control .Select-value {
+    display: flex;
+    align-items: center; /* Центрирование по вертикали внутри вложенных элементов */
+}
+
+
+.dropdown .DateInput_input{
+    font-size: 16px;
+    border-radius: 10px;
+    background-color: beige;
+    margin-bottom: 10px;
+    text-align: center;
+    width: 80%;
+}
+.dropdown .DateRangePickerInput {
+    border: none;    
+    white-space: nowrap;
+    height: 1px;
+    width: 0%;
+}
+.dropdown .DateRangePickerInput_arrow_svg{
+    margin: 0%;
+    visibility: hidden;
 }
 
 .dropdown .Select-menu {
     font-size: 12px; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+
     text-align: left; 
     white-space: wrap;
+    padding: 2%;
 }
+
    
 .H3-grid{
     grid-column-start: 1;
@@ -188,8 +236,7 @@ body::before {
 .box-tab{
     grid-column-start: 1;
     grid-column-end: 4;
-    grid-row-start: 1;
-    grid-row-end: 3;
+
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     /* background-color: #141514; */
@@ -202,7 +249,9 @@ body::before {
 }
 .box-tabs{
     grid-column-start: 1;
-    grid-column-end: 4;
+    grid-column-end: 7;
+
+    box-shadow: 0 4px 10px 5px rgba(0, 0, 0, 0.2);
 }
 
 .box-tabs .active {
@@ -218,38 +267,6 @@ body::before {
     background: #ffff;
     color: #000;
     white-space: wrap;   
-}
-.title_custom_top {
-    position: relative; /* Убедитесь, что элемент имеет позиционирование */
-    width: 100%; /* Пример размера, возможно вам понадобится адаптировать */
-    height: 100%;
-    background-image: url('screen.jpg');
-    background-size: cover;
-    background-position: center;
-    padding: 2px;
-    white-space: wrap; 
-    color: white;
-    font-weight: bold;
-    align-content: center;
-}
-
-.title_custom_top::before {
-    content:"";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.5); /* Полупрозрачный фон */
-    backdrop-filter: blur(10px); /* Эффект блюра */
-    -webkit-backdrop-filter: blur(20px); /* Префикс для Webkit браузеров */
-    z-index: 1; /* Чтобы он был над фоном */
-    pointer-events: none; /* Чтобы не блокировать взаимодействие с элементом ниже */
-}
-
-.title_custom_top > * {
-    position: relative;
-    z-index: 2; /* Чтобы содержимое было поверх эффекта блюра */
 }
 
 
@@ -328,6 +345,7 @@ body::before {
     min-height: 0;  
     overflow: hidden;  
     max-width: 600px;
+
 }
 .child-expence1{
     grid-column-start: 5;
@@ -348,6 +366,7 @@ body::before {
     min-height: 0;   
     overflow:hidden;   
     max-width: 600px;
+
 }
 * {
     box-sizing: border-box;
@@ -358,12 +377,60 @@ body::before {
     transition: transform 0.3s ease-in-out;
     min-height: 580px;
     padding: 25px;
-    /* Другие стили для графика */
+
+    display: flex;
+    justify-content: center; /* Выравнивание по горизонтали */
+    align-items: center;     /* Выравнивание по вертикали */
 }
 .title_custom{
     padding: 20px;
+    white-space: wrap; 
+}
+.modified_pie{
+    padding-left: 15%; 
 }
 .card_top{
-    grid-row-start: 1;
-    grid-row-end: 1;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+
 }
+
+.title_custom_top > * {
+    position: relative;
+    z-index: 1; /* Чтобы содержимое было поверх эффекта блюра */
+}
+.title_custom_top {
+    position: relative; /* Убедитесь, что элемент имеет позиционирование */
+    width: 100%; /* Пример размера, возможно вам понадобится адаптировать */
+    height: 100%;
+    background-image: url('screen.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 0px;
+    white-space: wrap; 
+    color: white;
+    box-sizing: border-box;
+    font-weight: bold;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+.title_custom_top::before {
+    content:"";
+    position: absolute;
+    width: 100.5%;
+    height: 109%;
+    background: rgba(255, 255, 255, 0.5); /* Полупрозрачный фон */
+    backdrop-filter: blur(10px); /* Эффект блюра */
+    -webkit-backdrop-filter: blur(20px); /* Префикс для Webkit браузеров */
+    z-index: 1; /* Чтобы он был над фоном */
+    pointer-events: none; /* Чтобы не блокировать взаимодействие с элементом ниже */
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+} 
+.title_custom_top p {
+    width: 100%; /* Укажите ширину, которая вам нужна */
+    margin: 0 auto;
+    text-align: center; /* Если вы хотите также выровнять текст по центру */
+}
+

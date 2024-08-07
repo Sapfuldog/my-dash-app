@@ -23,7 +23,7 @@ def create_layout():
                            defaultColDef={'filter': True, 'floatingFilter': True, 'resizable': True, 'sortable': True, 'editable': False, 'minWidth': 125, 'wrapHeaderText': True, 'autoHeaderHeight': True},
                            style={'resize': 'both', 'overflow': 'hidden', "height": 1600})
 
-    return dbc.Container([
+    return html.Div([
         dcc.Location(id='url', refresh=False),
         html.Div(dbc.Nav([
                     dbc.NavLink([html.I(className="bi bi-bank"), " Остатки на расчетных счетах"], href="/report1", className="nav-link"),
@@ -34,5 +34,7 @@ def create_layout():
                     dbc.NavLink([html.I(className="bi bi-boxes"), " Остатки товаров"], href="/report6", className="nav-link"),
                     dbc.NavLink([html.I(className="bi bi-journal"), " Файловое хранилище"], href="/report7", className="nav-link"),
                 ], vertical=True, pills=True, className="navbar-vertical"),className = 'child1'),
-        html.Div(id='page-content', className='child2')
-        ], fluid=True, className = 'parent')
+        html.Div(id='page-content', className='child2'),
+        ], className = 'parent_')
+
+
