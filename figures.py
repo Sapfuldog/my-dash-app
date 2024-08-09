@@ -187,6 +187,7 @@ def generate_random_color():
 def prepare_data(df_filtered):
     df_filtered['Накопительно'] = df_filtered['Сумма'].cumsum()
 
+
     # Фильтрация данных
     expenses_df = df_filtered[df_filtered['Сумма'] < 0].copy()
     incomes_df = df_filtered[df_filtered['Сумма'] > 0].copy()
@@ -196,6 +197,26 @@ def prepare_data(df_filtered):
     start_date = datetime.now()
     df_filtered_by_date = df_filtered[df_filtered['Дата'] >= start_date]
     df_filtered_by_date_undo = df_filtered[df_filtered['Дата'] < start_date]
+    
+    # Группировка по дате и получение последней записи
+    df_grouped_ = df_filtered.groupby(df_filtered['Дата'].dt.date)['Накопительно'].last().reset_index()
+    df_grouped_['Дата'] = pd.to_datetime(df_grouped_['Дата'])
+
+    # Создание диапазона дат
+    date_range = pd.date_range(start=df_grouped_['Дата'].min(), end=df_grouped_['Дата'].max(), freq='D')
+
+    # Создание DataFrame с диапазоном дат
+    date_df = pd.DataFrame(date_range, columns=['Дата'])
+
+    # Установка индекса для обоих DataFrame
+    date_df.set_index('Дата', inplace=True)
+    df_grouped_.set_index('Дата', inplace=True)
+
+    # Объединение DataFrame
+    df_grouped_ = date_df.join(df_grouped_, how='left').ffill()
+
+    # Сброс индекса, если нужно
+    df_grouped_.reset_index(inplace=True)
 
     # Подготовка данных по неделям
     df_pos = df_filtered[(df_filtered['Сумма'] > 0) & (df_filtered['Статья учета'] != 'Остаток на р/с')]
@@ -205,11 +226,11 @@ def prepare_data(df_filtered):
     weekly_pos = df_pos.resample('W-Mon', on='Дата')['Сумма'].sum().reset_index()
     weekly_neg = df_neg.resample('W-Mon', on='Дата')['Сумма'].sum().reset_index()
 
-    return df_filtered, df_filtered_by_date, df_filtered_by_date_undo, weekly_pos, weekly_neg, expenses_df, incomes_df
+    return df_filtered, df_filtered_by_date, df_filtered_by_date_undo, weekly_pos, weekly_neg, expenses_df, incomes_df, df_grouped_
 
 def create_figures(df_filtered):
     # Подготовка данных
-    df_filtered, df_filtered_by_date, df_filtered_by_date_undo, weekly_pos, weekly_neg, expenses_df, incomes_df = prepare_data(df_filtered)
+    df_filtered, df_filtered_by_date, df_filtered_by_date_undo, weekly_pos, weekly_neg, expenses_df, incomes_df, df_grouped_ = prepare_data(df_filtered)
 
     # Создание графиков
     fig_profit = make_subplots(
@@ -251,7 +272,7 @@ def create_figures(df_filtered):
             x=df_filtered_by_date['Дата'],
             y=df_filtered_by_date['Накопительно'], 
             showlegend=False,
-            line=dict(color='#0015ff'),
+            line=dict(color='#0015ff', shape='hv'),
             connectgaps=True
         ),
         row=3, col=1
@@ -261,7 +282,7 @@ def create_figures(df_filtered):
             x=df_filtered_by_date_undo['Дата'],
             y=df_filtered_by_date_undo['Накопительно'], 
             showlegend=False,
-            line=dict(color='#00fffb'),
+            line=dict(color='#00fffb', shape='hv'),
             connectgaps=True
         ),
         row=3, col=1
@@ -269,7 +290,7 @@ def create_figures(df_filtered):
     
     fig_profit.add_trace(
         go.Histogram(
-            y=df_filtered['Накопительно'], 
+            y=df_grouped_['Накопительно'], 
             histfunc='sum',
             showlegend=False,
             marker_color='#01ffd0'
@@ -304,7 +325,6 @@ def create_figures(df_filtered):
         plot_bgcolor='rgba(0,0,0,0)',  # Прозрачный фон графика
         paper_bgcolor='rgba(0,0,0,0)'
     )
-
     fig_profit.update_xaxes(matches='x')
     fig_profit.update_xaxes(tickfont=dict(size=8), row=3, col=2)
     fig_profit.update_yaxes(

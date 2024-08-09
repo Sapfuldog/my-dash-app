@@ -39,8 +39,7 @@ def register_callbacks(app):
         
         
         if pathname == '/report1':
-            return dcc.Loading(
-            dbc.Tabs([
+            return dbc.Tabs([
             dbc.Tab(
                     [html.Div([
                         dbc.Card([
@@ -114,7 +113,7 @@ def register_callbacks(app):
                     tab_id="tab-1",
                     className='box-tab')
 
-            ], id='tabs', active_tab='tab-2',className='box-tabs'))
+            ], id='tabs', active_tab='tab-2',className='box-tabs')
         elif pathname == '/report2':
             return html.Div([
                 html.H3('Анализ продаж')
