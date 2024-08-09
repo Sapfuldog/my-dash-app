@@ -179,6 +179,9 @@ def register_callbacks(app):
         
         df = df[(df['Дата'] >= start_date) & (df['Дата'] <= end_date)]
         
+        if not df.empty:
+            df.iloc[0, df.columns.get_loc('Сумма')] = df.iloc[0, df.columns.get_loc('Накопительно')]
+        
         fig_profit, fig_incomes, fig_expenses, _, fig_pie_ras, fig_pie_pos = create_figures(df)
         return fig_profit, fig_incomes, fig_expenses, fig_pie_pos, fig_pie_ras
 

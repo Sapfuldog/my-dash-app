@@ -187,7 +187,6 @@ def generate_random_color():
 def prepare_data(df_filtered):
     df_filtered['Накопительно'] = df_filtered['Сумма'].cumsum()
 
-
     # Фильтрация данных
     expenses_df = df_filtered[df_filtered['Сумма'] < 0].copy()
     incomes_df = df_filtered[df_filtered['Сумма'] > 0].copy()
@@ -197,26 +196,6 @@ def prepare_data(df_filtered):
     start_date = datetime.now()
     df_filtered_by_date = df_filtered[df_filtered['Дата'] >= start_date]
     df_filtered_by_date_undo = df_filtered[df_filtered['Дата'] < start_date]
-    
-    # Группировка по дате и получение последней записи
-    df_grouped_ = df_filtered.groupby(df_filtered['Дата'].dt.date)['Накопительно'].last().reset_index()
-    df_grouped_['Дата'] = pd.to_datetime(df_grouped_['Дата'])
-
-    # Создание диапазона дат
-    date_range = pd.date_range(start=df_grouped_['Дата'].min(), end=df_grouped_['Дата'].max(), freq='D')
-
-    # Создание DataFrame с диапазоном дат
-    date_df = pd.DataFrame(date_range, columns=['Дата'])
-
-    # Установка индекса для обоих DataFrame
-    date_df.set_index('Дата', inplace=True)
-    df_grouped_.set_index('Дата', inplace=True)
-
-    # Объединение DataFrame
-    df_grouped_ = date_df.join(df_grouped_, how='left').ffill()
-
-    # Сброс индекса, если нужно
-    df_grouped_.reset_index(inplace=True)
 
     # Подготовка данных по неделям
     df_pos = df_filtered[(df_filtered['Сумма'] > 0) & (df_filtered['Статья учета'] != 'Остаток на р/с')]
@@ -225,8 +204,36 @@ def prepare_data(df_filtered):
 
     weekly_pos = df_pos.resample('W-Mon', on='Дата')['Сумма'].sum().reset_index()
     weekly_neg = df_neg.resample('W-Mon', on='Дата')['Сумма'].sum().reset_index()
+    
+    df_grouped_ = { 'Накопительно':[0]}
+    
+    if not df_filtered.empty:
+        df_grouped_ = df_filtered.copy()   
+        # # # Группировка по дате и получение последней записи
+        df_grouped_ = df_grouped_.groupby(df_grouped_['Дата'].dt.date)['Накопительно'].last().reset_index()
+        df_grouped_['Дата'] = pd.to_datetime(df_grouped_['Дата'])
+
+        # # # Создание диапазона дат
+        date_range = pd.date_range(start=df_grouped_['Дата'].min(), end=df_grouped_['Дата'].max(), freq='D')
+
+        # # # Создание DataFrame с диапазоном дат
+        date_df = pd.DataFrame(date_range, columns=['Дата'])
+
+        # # # Установка индекса для обоих DataFrame
+        date_df.set_index('Дата', inplace=True)
+        df_grouped_.set_index('Дата', inplace=True)
+
+        # # # Объединение DataFrame
+        df_grouped_ = date_df.join(df_grouped_, how='left').ffill()
+
+        # # # Сброс индекса, если нужно
+        df_grouped_.reset_index(inplace=True)
 
     return df_filtered, df_filtered_by_date, df_filtered_by_date_undo, weekly_pos, weekly_neg, expenses_df, incomes_df, df_grouped_
+
+
+
+
 
 def create_figures(df_filtered):
     # Подготовка данных
@@ -237,7 +244,7 @@ def create_figures(df_filtered):
         rows=3, cols=2,
         shared_xaxes=True, 
         shared_yaxes=True,
-        vertical_spacing=0.02, 
+        vertical_spacing=0.05, 
         horizontal_spacing=0.01,
         row_heights=[0.7, 0.7, 4.7],  # Устанавливаем высоту строк
         column_widths=[0.7, 0.07],  # Устанавливаем ширину колонок
