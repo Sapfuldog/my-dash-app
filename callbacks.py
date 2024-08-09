@@ -6,9 +6,18 @@ import dash_bootstrap_components as dbc
 import data
 from figures import create_figures
 import pandas as pd
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
+import numpy as np
 
 
+def choose_color(value):
+    if value < 0:
+            return '-', "red_title", -value
+    else:
+        if value == 0:
+            return '', "green_title", 0
+        else:     
+            return '+', "green_title", value 
 
 
 def clean_value(value):
@@ -30,11 +39,48 @@ def register_callbacks(app):
         bank_options = [{'label': clean_value(bank), 'value': clean_value(bank)} for bank in df_fut['Банк'].unique()]
         st_options = [{'label': clean_value(st), 'value': clean_value(st)} for st in df_fut['Статья учета'].unique()]
         dir_options = [{'label': clean_value(d), 'value': clean_value(d)} for d in df_fut['Направление деятельности'].unique()]
+        
         lastDat = df_cur['Дата'].iloc[-1].date()
         lastDat = lastDat.strftime('%d.%m.%Y')
         min_date = datetime.now()
         max_date = df['Дата'].max().date()
         balance = df_cur['Накопительно'].iloc[-1]
+        # Определяем сегодняшнюю дату
+        today = pd.to_datetime('today')
+        seven_days_ago = min_date - pd.Timedelta(days=7)
+        # Начало текущей недели (понедельник)
+        current_week_start = today - timedelta(days=today.weekday())
+        # Конец текущей недели (воскресенье)
+        current_week_end = current_week_start + timedelta(days=6)
+        # Начало прошлой недели (понедельник)
+        last_week_start = current_week_start - timedelta(days=7)
+        # Конец прошлой недели (воскресенье)
+        last_week_end = current_week_start - timedelta(days=1)
+        
+        income_cur_w = df[(df['Дата'] >= current_week_start) & (df['Дата'] < min_date) & (df['Сумма'] > 0)]
+        income_cur_w = income_cur_w['Сумма'].sum()
+        income_prev_w = df[(df['Дата'] >= last_week_start) & (df['Дата'] <= seven_days_ago) & (df['Сумма'] > 0)]
+        income_prev_w = income_cur_w - income_prev_w['Сумма'].sum()
+        sym, color_bal, income_prev_w = choose_color(income_prev_w)
+        income_prev_w = f"""
+        <p class = "{color_bal}">изменение {sym} {income_prev_w:,.2f} за 7 дней </p>
+        """   
+        expences_cur_w = df[(df['Дата'] >= current_week_start) & (df['Дата'] < min_date) & (df['Сумма'] < 0)]
+        expences_cur_w = expences_cur_w['Сумма'].sum()
+        expences_prev_w = df[(df['Дата'] >= last_week_start) & (df['Дата'] <= seven_days_ago) & (df['Сумма'] < 0)]
+        expences_prev_w = expences_cur_w + expences_prev_w['Сумма'].sum()
+        sym, color_bal, expences_prev_w = choose_color(expences_prev_w)
+        expences_prev_w = f"""
+        <p class = "{color_bal}">изменение {sym} {expences_prev_w:,.2f} за 7 дней </p>
+        """      
+                        
+        prev_bal = df[(df['Дата'] < seven_days_ago)]
+        prev_bal = prev_bal.iloc[-1]
+        prev_bal = - prev_bal['Накопительно'] + balance
+        sym, color_bal, prev_bal = choose_color(prev_bal)
+        prev_bal = f"""
+        <p class = "{color_bal}">изменение {sym} {prev_bal:,.2f} за 7 дней </p>
+        """
         
         
         
@@ -43,11 +89,29 @@ def register_callbacks(app):
             dbc.Tab(
                     [html.Div([
                         dbc.Card([
-                            html.Div([dcc.Markdown('Текущий баланс'),
-                                      dcc.Markdown(f'_на  {lastDat}_',className='grey_title')
-                                      ], className='title_custom_top'),
-                            dcc.Markdown(f'₽ {balance:,.2f}',className='title_custom')                            
-                    ], className='card_top')
+                            html.Div([
+                                dcc.Markdown('Текущий баланс'),
+                                dcc.Markdown(f'_на  {lastDat}_',className='grey_title')
+                            ], className='title_custom_top fst_top'),
+                            dcc.Markdown(f'₽ {balance:,.2f}',className='title_custom'),
+                            dcc.Markdown(prev_bal,className='title_custom',dangerously_allow_html=True),                            
+                        ], className='card_top first_of_seven'),
+                        dbc.Card([
+                            html.Div([
+                                dcc.Markdown('Поступления'),
+                                dcc.Markdown(f'_на  {lastDat}_',className='grey_title')
+                            ], className='title_custom_top snd_top'),
+                            dcc.Markdown(f'₽ {income_cur_w:,.2f}',className='title_custom'),
+                            dcc.Markdown(income_prev_w,className='title_custom',dangerously_allow_html=True),                            
+                        ], className='card_top second_of_seven'),                        
+                        dbc.Card([
+                            html.Div([
+                                dcc.Markdown('Списания'),
+                                dcc.Markdown(f'_на  {lastDat}_',className='grey_title')
+                            ], className='title_custom_top tnd_top'),
+                            dcc.Markdown(f'₽ {expences_cur_w:,.2f}',className='title_custom'),
+                            dcc.Markdown(expences_prev_w,className='title_custom',dangerously_allow_html=True),                            
+                        ], className='card_top third_of_seven')                        
                     ], className='box2')],                     
                     label="Текущий баланс остатков на расчетных счетах",
                     tab_id="tab-2",

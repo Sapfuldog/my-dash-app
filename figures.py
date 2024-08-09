@@ -245,31 +245,31 @@ def create_figures(df_filtered):
         shared_xaxes=True, 
         shared_yaxes=True,
         vertical_spacing=0.05, 
-        horizontal_spacing=0.01,
+        horizontal_spacing=0.05,
         row_heights=[0.7, 0.7, 4.7],  # Устанавливаем высоту строк
         column_widths=[0.7, 0.07],  # Устанавливаем ширину колонок
         specs=[[{"type": "bar"}, {"type": "scatter"}],
                [{"type": "bar"}, {"type": "histogram"}],
                [{"type": "scatter"}, {"type": "histogram"}]]
     )
-
+    weekly_pos['Цвет'] = assign_colors(weekly_pos['Сумма'], teal_colorscale)
     # Добавление данных на графики
     fig_profit.add_trace(
         go.Bar(                             
             x=weekly_pos['Дата'],
             y=weekly_pos['Сумма'], 
             showlegend=False,
-            marker=dict(color=[SetGreenColor(value) for value in weekly_pos['Сумма']])
+            marker=dict(color=weekly_pos['Цвет'])
         ),
         row=1, col=1
     ) 
-
+    weekly_neg['Цвет'] = assign_colors(weekly_neg['Сумма'], sunsetdark_colorscale)
     fig_profit.add_trace(
         go.Bar(                             
             x=weekly_neg['Дата'],
             y=weekly_neg['Сумма'], 
             showlegend=False,
-            marker=dict(color=[SetRedColor(value) for value in weekly_neg['Сумма']])
+            marker=dict(color=weekly_neg['Цвет'])
         ),
         row=2, col=1
     ) 
@@ -279,7 +279,7 @@ def create_figures(df_filtered):
             x=df_filtered_by_date['Дата'],
             y=df_filtered_by_date['Накопительно'], 
             showlegend=False,
-            line=dict(color='#0015ff', shape='hv'),
+            line=dict(color='rgb(0, 150, 125)', shape='hv'),
             connectgaps=True
         ),
         row=3, col=1
@@ -289,7 +289,7 @@ def create_figures(df_filtered):
             x=df_filtered_by_date_undo['Дата'],
             y=df_filtered_by_date_undo['Накопительно'], 
             showlegend=False,
-            line=dict(color='#00fffb', shape='hv'),
+            line=dict(color='rgb(72, 209, 204)', shape='hv'),
             connectgaps=True
         ),
         row=3, col=1
@@ -300,7 +300,7 @@ def create_figures(df_filtered):
             y=df_grouped_['Накопительно'], 
             histfunc='sum',
             showlegend=False,
-            marker_color='#01ffd0'
+            marker_color='rgb(0, 150, 125)'
         ),
         row=3, col=2
     )    
