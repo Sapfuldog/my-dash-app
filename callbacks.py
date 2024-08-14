@@ -60,7 +60,8 @@ def register_callbacks(app):
         income_cur_w = df[(df['Дата'] >= current_week_start) & (df['Дата'] < min_date) & (df['Сумма'] > 0)]
         income_cur_w = income_cur_w['Сумма'].sum()
         income_prev_w = df[(df['Дата'] >= last_week_start) & (df['Дата'] <= seven_days_ago) & (df['Сумма'] > 0)]
-        income_prev_w = income_cur_w - income_prev_w['Сумма'].sum()
+        sum_prev_in = income_prev_w['Сумма'].sum()
+        income_prev_w = income_cur_w - sum_prev_in
         sym, color_bal, income_prev_w = choose_color(income_prev_w)
         income_prev_w = f"""
         <p class = "{color_bal}">изменение {sym} {income_prev_w:,.2f} за 7 дней </p>
@@ -68,7 +69,8 @@ def register_callbacks(app):
         expences_cur_w = df[(df['Дата'] >= current_week_start) & (df['Дата'] < min_date) & (df['Сумма'] < 0)]
         expences_cur_w = expences_cur_w['Сумма'].sum()
         expences_prev_w = df[(df['Дата'] >= last_week_start) & (df['Дата'] <= seven_days_ago) & (df['Сумма'] < 0)]
-        expences_prev_w = expences_cur_w + expences_prev_w['Сумма'].sum()
+        sum_prev = expences_prev_w['Сумма'].sum()
+        expences_prev_w = expences_cur_w - sum_prev
         sym, color_bal, expences_prev_w = choose_color(expences_prev_w)
         expences_prev_w = f"""
         <p class = "{color_bal}">изменение {sym} {expences_prev_w:,.2f} за 7 дней </p>
@@ -209,10 +211,11 @@ def register_callbacks(app):
          Input('bank-filter', 'value'),
          Input('d-filter', 'value'),
          Input('st-filter', 'value'),
+         Input('profit-graph', 'relayoutData'),
          Input('date-picker-range', 'start_date'),
          Input('date-picker-range', 'end_date')]
     )
-    def update_graphs(selected_data, selected_accounts, selected_banks, selected_d, selected_st, start_date, end_date):
+    def update_graphs(selected_data, selected_accounts, selected_banks, selected_d, selected_st, relayoutData, start_date, end_date):
         df = data.get_data()
         df_cur, df_fut = data.get_data_cur_fut()
         
@@ -241,10 +244,15 @@ def register_callbacks(app):
         else:
             df = df_fut
         
+        if relayoutData and 'xaxis.range[0]' in relayoutData and 'xaxis.range[1]' in relayoutData:
+            start_date = relayoutData['xaxis.range[0]']
+            end_date = relayoutData['xaxis.range[1]']
+        
         df = df[(df['Дата'] >= start_date) & (df['Дата'] <= end_date)]
         
         if not df.empty:
             df.iloc[0, df.columns.get_loc('Сумма')] = df.iloc[0, df.columns.get_loc('Накопительно')]
+            df.iloc[0, df.columns.get_loc('Статья учета')] = 'Остаток на р/с'
         
         fig_profit, fig_incomes, fig_expenses, _, fig_pie_ras, fig_pie_pos = create_figures(df)
         return fig_profit, fig_incomes, fig_expenses, fig_pie_pos, fig_pie_ras
